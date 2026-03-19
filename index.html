@@ -5,9 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STOCK ESCALU - Control Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para que la barra de desplazamiento sea visible y estética */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-white font-sans">
-    <div class="max-w-6xl mx-auto p-4">
+    <div class="max-w-6xl mx-auto p-2 md:p-4">
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-6 italic">STOCK ESCALU</h1>
@@ -17,21 +27,21 @@
 
         <div id="menu-secciones" class="hidden">
             <header class="text-center mb-10">
-                <h1 class="text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
-                <p class="text-slate-400 font-bold mt-2">SISTEMA DE GESTIÓN PRO</p>
+                <h1 class="text-5xl md:text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
+                <p class="text-slate-400 font-bold mt-2 text-sm md:text-base">SISTEMA DE GESTIÓN PRO</p>
             </header>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
-                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌅 DIURNO</button>
-                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
             </div>
         </div>
 
-        <div id="vista-stock" class="hidden mt-4">
-            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
+        <div id="vista-stock" class="hidden mt-2">
+            <div class="bg-slate-800 p-4 md:p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                    <h2 id="titulo-linea" class="text-4xl font-black text-yellow-500 uppercase italic"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por Referencia o Modelo..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
+                    <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
                     <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600">VOLVER</button>
                 </div>
                 
@@ -45,21 +55,27 @@
                         <option>CAMBRIAN/PIZARRA</option><option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
                     </select>
                     <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 shadow-lg transition active:scale-95">AÑADIR +</button>
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 shadow-lg p-3 transition active:scale-95">AÑADIR +</button>
                 </div>
             </div>
 
-            <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl">
-                <table class="w-full text-left" id="tabla-muebles">
-                    <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
-                        <tr>
-                            <th class="p-4">REF</th><th class="p-4">MODELO</th><th class="p-4">COLOR</th>
-                            <th class="p-4 text-center">REC.</th><th class="p-4 text-center">VENDIDO</th>
-                            <th class="p-4 text-center text-white font-bold">STOCK</th><th class="p-4 text-center">ELIMINAR</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-tabla" class="divide-y divide-slate-700 font-bold"></tbody>
-                </table>
+            <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
+                <div class="overflow-x-auto"> 
+                    <table class="w-full text-left min-w-[800px]" id="tabla-muebles">
+                        <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
+                            <tr>
+                                <th class="p-4">REF</th>
+                                <th class="p-4">MODELO</th>
+                                <th class="p-4">COLOR</th>
+                                <th class="p-4 text-center">REC.</th>
+                                <th class="p-4 text-center">VENDIDO</th>
+                                <th class="p-4 text-center text-white font-bold">STOCK</th>
+                                <th class="p-4 text-center">ELIMINAR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpo-tabla" class="divide-y divide-slate-700 font-bold"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -82,41 +98,44 @@
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = "LÍNEA " + seccion;
 
-            const res = await fetch(`${URL_API}/stock/${seccion}`);
-            const datos = await res.json();
-            const tabla = document.getElementById('cuerpo-tabla');
-            tabla.innerHTML = '';
-            
-            datos.forEach(m => {
-                const stock = m.recepcionadas - m.vendido;
+            try {
+                const res = await fetch(`${URL_API}/stock/${seccion}`);
+                const datos = await res.json();
+                const tabla = document.getElementById('cuerpo-tabla');
+                tabla.innerHTML = '';
                 
-                let colorStock = "text-white"; 
-                if (stock === 1) { colorStock = "text-red-500 animate-pulse text-2xl"; } 
-                if (stock <= 0) { colorStock = "text-slate-600"; } 
+                datos.forEach(m => {
+                    const stock = m.recepcionadas - m.vendido;
+                    let colorStock = "text-white"; 
+                    if (stock === 1) { colorStock = "text-red-500 animate-pulse text-2xl"; } 
+                    if (stock <= 0) { colorStock = "text-slate-600"; } 
 
-                tabla.innerHTML += `
-                    <tr class="hover:bg-slate-700/50 transition">
-                        <td class="p-4 text-blue-400 font-mono">${m.ref}</td>
-                        <td class="p-4">${m.descripcion}</td>
-                        <td class="p-4 text-xs"><span class="bg-slate-900 p-2 rounded-lg border border-slate-600">${m.color}</span></td>
-                        <td class="p-4 text-center text-green-400 text-lg">${m.recepcionadas}</td>
-                        <td class="p-4 text-center">
-                            <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-1 rounded-lg text-center font-bold bg-white text-black outline-none focus:ring-2 focus:ring-blue-500">
-                        </td>
-                        <td class="p-4 text-center font-black ${colorStock}">${stock}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
-                        </td>
-                    </tr>`;
-            });
+                    tabla.innerHTML += `
+                        <tr class="hover:bg-slate-700/50 transition">
+                            <td class="p-4 text-blue-400 font-mono text-sm">${m.ref}</td>
+                            <td class="p-4 text-sm whitespace-pre-line">${m.descripcion}</td>
+                            <td class="p-4 text-xs"><span class="bg-slate-900 p-2 rounded-lg border border-slate-600">${m.color}</span></td>
+                            <td class="p-4 text-center text-green-400 text-lg">${m.recepcionadas}</td>
+                            <td class="p-4 text-center">
+                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded-lg text-center font-bold bg-white text-black outline-none focus:ring-2 focus:ring-blue-500">
+                            </td>
+                            <td class="p-4 text-center font-black ${colorStock}">${stock}</td>
+                            <td class="p-4 text-center">
+                                <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (error) {
+                alert("Error conectando con el servidor. Espera un momento y vuelve a intentarlo.");
+            }
         }
 
         async function guardarMueble() {
             const nuevo = {
                 ref: document.getElementById('f-ref').value.toUpperCase(),
                 descripcion: document.getElementById('f-desc').value.toUpperCase(),
-                color: document.getElementById('f-color').value,
-                recepcionadas: parseInt(document.getElementById('f-rec').value),
+                color: document.getElementById('f-color').value || "S/C",
+                recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
                 vendido: 0,
                 seccion: seccionActual
             };
