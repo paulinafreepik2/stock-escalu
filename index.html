@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOCK ESCALU - Control Total</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    <div class="max-w-6xl mx-auto p-4">
+        
+        <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
+            <h1 class="text-4xl font-black text-blue-500 mb-6 italic">STOCK ESCALU</h1>
+            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl shadow-inner outline-none">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg">ENTRAR</button>
+        </div>
+
+        <div id="menu-secciones" class="hidden">
+            <header class="text-center mb-10">
+                <h1 class="text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
+                <p class="text-slate-400 font-bold mt-2">SISTEMA DE GESTIÓN PRO</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-10 rounded-3xl text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
+            </div>
+        </div>
+
+        <div id="vista-stock" class="hidden mt-4">
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                    <h2 id="titulo-linea" class="text-4xl font-black text-yellow-500 uppercase italic"></h2>
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por Referencia o Modelo..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600">VOLVER</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-black">
+                    <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none uppercase">
+                    <input id="f-desc" placeholder="MODELO" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none uppercase">
+                    <select id="f-color" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none">
+                        <option value="" disabled selected>COLOR</option>
+                        <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option><option>ROBLE</option>
+                        <option>CAMBRIAN/BLANCO</option><option>BLANCO/PIZARRA</option>
+                        <option>CAMBRIAN/PIZARRA</option><option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
+                    </select>
+                    <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none">
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 shadow-lg transition active:scale-95">AÑADIR +</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl">
+                <table class="w-full text-left" id="tabla-muebles">
+                    <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
+                        <tr>
+                            <th class="p-4">REF</th><th class="p-4">MODELO</th><th class="p-4">COLOR</th>
+                            <th class="p-4 text-center">REC.</th><th class="p-4 text-center">VENDIDO</th>
+                            <th class="p-4 text-center text-white font-bold">STOCK</th><th class="p-4 text-center">ELIMINAR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla" class="divide-y divide-slate-700 font-bold"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let seccionActual = "";
+        // TU NUEVA DIRECCIÓN DE INTERNET
+        const URL_API = "https://stock-escalu-app.onrender.com";
+
+        function verificar() {
+            if (document.getElementById('input-pass').value === '12345') {
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('menu-secciones').classList.remove('hidden');
+            }
+        }
+
+        async function cargarStock(seccion) {
+            seccionActual = seccion;
+            document.getElementById('menu-secciones').classList.add('hidden');
+            document.getElementById('vista-stock').classList.remove('hidden');
+            document.getElementById('titulo-linea').innerText = "LÍNEA " + seccion;
+
+            const res = await fetch(`${URL_API}/stock/${seccion}`);
+            const datos = await res.json();
+            const tabla = document.getElementById('cuerpo-tabla');
+            tabla.innerHTML = '';
+            
+            datos.forEach(m => {
+                const stock = m.recepcionadas - m.vendido;
+                
+                let colorStock = "text-white"; 
+                if (stock === 1) { colorStock = "text-red-500 animate-pulse text-2xl"; } 
+                if (stock <= 0) { colorStock = "text-slate-600"; } 
+
+                tabla.innerHTML += `
+                    <tr class="hover:bg-slate-700/50 transition">
+                        <td class="p-4 text-blue-400 font-mono">${m.ref}</td>
+                        <td class="p-4">${m.descripcion}</td>
+                        <td class="p-4 text-xs"><span class="bg-slate-900 p-2 rounded-lg border border-slate-600">${m.color}</span></td>
+                        <td class="p-4 text-center text-green-400 text-lg">${m.recepcionadas}</td>
+                        <td class="p-4 text-center">
+                            <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-1 rounded-lg text-center font-bold bg-white text-black outline-none focus:ring-2 focus:ring-blue-500">
+                        </td>
+                        <td class="p-4 text-center font-black ${colorStock}">${stock}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        async function guardarMueble() {
+            const nuevo = {
+                ref: document.getElementById('f-ref').value.toUpperCase(),
+                descripcion: document.getElementById('f-desc').value.toUpperCase(),
+                color: document.getElementById('f-color').value,
+                recepcionadas: parseInt(document.getElementById('f-rec').value),
+                vendido: 0,
+                seccion: seccionActual
+            };
+            await fetch(`${URL_API}/stock/agregar`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(nuevo)
+            });
+            document.getElementById('f-ref').value = "";
+            document.getElementById('f-desc').value = "";
+            document.getElementById('f-rec').value = "";
+            cargarStock(seccionActual);
+        }
+
+        async function eliminarMueble(id) {
+            if(confirm("¿Seguro que quieres borrar este mueble?")) {
+                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
+                cargarStock(seccionActual);
+            }
+        }
+
+        async function actualizarVenta(id, cantidad) {
+            await fetch(`${URL_API}/stock/vender/${id}?vendido=${cantidad}`, {method: 'PUT'});
+            cargarStock(seccionActual);
+        }
+
+        function filtrar() {
+            let filtro = document.getElementById('buscador').value.toUpperCase();
+            let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) {
+                let texto = filas[i].innerText.toUpperCase();
+                filas[i].style.display = texto.includes(filtro) ? "" : "none";
+            }
+        }
+
+        function volverAlMenu() {
+            document.getElementById('vista-stock').classList.add('hidden');
+            document.getElementById('menu-secciones').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
