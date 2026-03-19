@@ -6,7 +6,6 @@
     <title>STOCK ESCALU - Control Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilo para que la barra de desplazamiento sea visible y estética */
         .overflow-x-auto::-webkit-scrollbar {
             height: 8px;
         }
@@ -41,13 +40,13 @@
             <div class="bg-slate-800 p-4 md:p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por REF o DESCRIPCIÓN..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
                     <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600">VOLVER</button>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-black">
                     <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none uppercase">
-                    <input id="f-desc" placeholder="MODELO" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none uppercase">
+                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none uppercase">
                     <select id="f-color" class="p-3 rounded-xl font-bold border-2 focus:border-blue-500 outline-none">
                         <option value="" disabled selected>COLOR</option>
                         <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option><option>ROBLE</option>
@@ -65,7 +64,7 @@
                         <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
                             <tr>
                                 <th class="p-4">REF</th>
-                                <th class="p-4">MODELO</th>
+                                <th class="p-4">DESCRIPCIÓN</th>
                                 <th class="p-4">COLOR</th>
                                 <th class="p-4 text-center">REC.</th>
                                 <th class="p-4 text-center">VENDIDO</th>
@@ -82,7 +81,6 @@
 
     <script>
         let seccionActual = "";
-        // TU NUEVA DIRECCIÓN DE INTERNET
         const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
@@ -126,7 +124,7 @@
                         </tr>`;
                 });
             } catch (error) {
-                alert("Error conectando con el servidor. Espera un momento y vuelve a intentarlo.");
+                alert("Error conectando con el servidor.");
             }
         }
 
