@@ -17,8 +17,7 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
             <h1 class="text-4xl font-black text-white mb-6 italic tracking-tighter">IMMINENT</h1>
-            <p class="text-slate-400 mb-4 text-sm font-bold uppercase">Introduce Clave de Acceso</p>
-            <input id="input-pass" type="text" placeholder="Escribe aquí..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500">
+            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl">ENTRAR</button>
         </div>
 
@@ -39,28 +38,20 @@
             <div class="bg-slate-800 p-4 md:p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por REF o DESCRIPCIÓN..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
                     <button onclick="volverAlMenu()" class="solo-general bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
                 </div>
                 
                 <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 text-black bg-slate-700 p-4 rounded-2xl border border-slate-600 mb-2">
-                    <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold border-2 outline-none uppercase">
-                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl font-bold border-2 outline-none uppercase">
-                    <select id="f-color" class="p-3 rounded-xl font-bold border-2 outline-none">
+                    <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold uppercase">
+                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl font-bold uppercase">
+                    <select id="f-color" class="p-3 rounded-xl font-bold">
                         <option value="" disabled selected>COLOR</option>
-                        <option>CAMBRIAN</option>
-                        <option>BLANCO</option>
-                        <option>TIBET</option>
-                        <option>ROBLE</option>
-                        <option>PIZARRA</option>
-                        <option>CAMBRIAN/BLANCO</option>
-                        <option>TIBET/PIZARRA</option>
-                        <option>CAMBRIAN/PIZARRA</option>
-                        <option>ROBLE/BLANCO</option>
-                        <option>GRIS</option>
+                        <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option><option>ROBLE</option><option>PIZARRA</option>
+                        <option>CAMBRIAN/BLANCO</option><option>TIBET/PIZARRA</option><option>CAMBRIAN/PIZARRA</option><option>ROBLE/BLANCO</option><option>GRIS</option>
                     </select>
-                    <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold border-2 outline-none">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 p-3 transition shadow-lg">AÑADIR +</button>
+                    <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold">
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl p-3 shadow-lg">AÑADIR +</button>
                 </div>
             </div>
 
@@ -72,10 +63,10 @@
                                 <th class="p-4">REF</th>
                                 <th class="p-4">DESCRIPCIÓN</th>
                                 <th class="p-4">COLOR</th>
-                                <th class="p-4 text-center solo-admin">REC.</th>
+                                <th class="p-4 text-center solo-admin">RECIBIDAS</th>
                                 <th class="p-4 text-center solo-admin">VENDIDO</th>
-                                <th class="p-4 text-center text-white font-bold">DISPONIBLE (STOCK)</th>
-                                <th class="p-4 text-center solo-admin">ELIMINAR</th>
+                                <th class="p-4 text-center text-white font-bold">STOCK</th>
+                                <th class="p-4 text-center solo-admin">ACCIONES</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tabla" class="divide-y divide-slate-700 font-bold"></tbody>
@@ -93,26 +84,20 @@
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             if (pass === '12345CUCA') {
-                esAdmin = true;
-                document.body.classList.remove('modo-cliente', 'modo-solo-sofas');
+                esAdmin = true; entrar();
                 document.getElementById('txt-bienvenida').innerText = "Panel Control IMMINENT";
-                document.getElementById('pantalla-login').classList.add('hidden');
-                document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'INVITADO') {
-                esAdmin = false;
-                document.body.classList.add('modo-cliente');
-                document.body.classList.remove('modo-solo-sofas');
+                esAdmin = false; document.body.classList.add('modo-cliente'); entrar();
                 document.getElementById('txt-bienvenida').innerText = "Catálogo Online IMMINENT";
-                document.getElementById('pantalla-login').classList.add('hidden');
-                document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'SOFAS') {
-                esAdmin = false;
-                document.body.classList.add('modo-cliente', 'modo-solo-sofas');
-                document.getElementById('txt-bienvenida').innerText = "Catálogo de Sofás IMMINENT";
+                esAdmin = false; document.body.classList.add('modo-cliente', 'modo-solo-sofas');
                 cargarStock('SOFAS');
-            } else {
-                alert("❌ Clave incorrecta.");
-            }
+            } else { alert("❌ Clave incorrecta."); }
+        }
+
+        function entrar() {
+            document.getElementById('pantalla-login').classList.add('hidden');
+            document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
         async function cargarStock(seccion) {
@@ -130,27 +115,38 @@
                 
                 datos.forEach(m => {
                     const stock = m.recepcionadas - m.vendido;
-                    let colorStock = "text-white"; 
-                    if (stock === 1) { colorStock = "text-red-500 animate-pulse text-2xl"; } 
-                    if (stock <= 0) { colorStock = "text-slate-600"; } 
+                    let colorStock = stock <= 1 ? "text-red-500 animate-pulse text-2xl" : "text-white";
+                    if (stock <= 0) colorStock = "text-slate-600";
 
                     tabla.innerHTML += `
                         <tr class="hover:bg-slate-700/50 transition">
                             <td class="p-4 text-blue-400 font-mono text-sm">${m.ref}</td>
-                            <td class="p-4 text-sm whitespace-pre-line">${m.descripcion}</td>
-                            <td class="p-4 text-xs"><span class="bg-slate-900 p-2 rounded-lg border border-slate-600">${m.color}</span></td>
-                            <td class="p-4 text-center text-green-400 text-lg solo-admin">${m.recepcionadas}</td>
+                            <td class="p-4 text-sm">${m.descripcion}</td>
+                            <td class="p-4 text-xs"><span>${m.color}</span></td>
                             <td class="p-4 text-center solo-admin">
-                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded-lg text-center font-bold bg-white text-black outline-none focus:ring-2 focus:ring-blue-500">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="text-green-400 text-lg">${m.recepcionadas}</span>
+                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas})" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-500 font-black"> + </button>
+                                </div>
+                            </td>
+                            <td class="p-4 text-center solo-admin">
+                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded bg-white text-black text-center">
                             </td>
                             <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
                             <td class="p-4 text-center solo-admin">
-                                <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
+                                <button onclick="eliminarMueble('${m._id}')" class="text-red-500 text-xl">🗑️</button>
                             </td>
                         </tr>`;
                 });
-            } catch (error) {
-                alert("Error conectando con el servidor.");
+            } catch (error) { alert("Error al cargar."); }
+        }
+
+        async function sumarMercancia(id, actual) {
+            const extra = prompt("¿Cuántas unidades nuevas han llegado?");
+            if (extra !== null && !isNaN(extra)) {
+                const nuevoTotal = parseInt(actual) + parseInt(extra);
+                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevoTotal}`, { method: 'PUT' });
+                cargarStock(seccionActual);
             }
         }
 
@@ -168,22 +164,20 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(nuevo)
             });
-            document.getElementById('f-ref').value = "";
-            document.getElementById('f-desc').value = "";
-            document.getElementById('f-rec').value = "";
+            document.getElementById('f-ref').value = ""; document.getElementById('f-desc').value = ""; document.getElementById('f-rec').value = "";
             cargarStock(seccionActual);
-        }
-
-        async function eliminarMueble(id) {
-            if(confirm("¿Seguro?")) {
-                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
-                cargarStock(seccionActual);
-            }
         }
 
         async function actualizarVenta(id, cantidad) {
             await fetch(`${URL_API}/stock/vender/${id}?vendido=${cantidad}`, {method: 'PUT'});
             cargarStock(seccionActual);
+        }
+
+        async function eliminarMueble(id) {
+            if(confirm("¿Borrar producto?")) {
+                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
+                cargarStock(seccionActual);
+            }
         }
 
         function filtrar() {
