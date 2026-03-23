@@ -9,6 +9,7 @@
         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
         .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .modo-cliente .solo-admin { display: none !important; }
+        .modo-solo-sofas .solo-general { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans">
@@ -16,10 +17,9 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-6 italic">STOCK ESCALU</h1>
-            <p class="text-slate-400 mb-4 text-sm font-bold">INTRODUCE TU CLAVE DE ACCESO</p>
-            <input id="input-pass" type="text" placeholder="Escribe aquí..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500 shadow-inner">
+            <p class="text-slate-400 mb-4 text-sm font-bold uppercase">Introduce Clave de Acceso</p>
+            <input id="input-pass" type="text" placeholder="Escribe aquí..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl">ENTRAR</button>
-            <p class="text-slate-500 mt-6 text-xs uppercase tracking-widest">Consulta de Stock en Tiempo Real</p>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
@@ -27,10 +27,11 @@
                 <h1 class="text-5xl md:text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase tracking-widest bg-slate-800 inline-block px-4 py-1 rounded-full text-xs md:text-sm"></p>
             </header>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
-                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌅 DIURNO</button>
-                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <button onclick="cargarStock('DAKOTA')" class="solo-general bg-orange-800 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-orange-900">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="solo-general bg-sky-600 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-sky-800">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="solo-general bg-indigo-900 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-indigo-950">🌙 NOCTURNO</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-red-900">🛋️ SOFÁS</button>
             </div>
         </div>
 
@@ -39,7 +40,7 @@
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por REF o DESCRIPCIÓN..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
+                    <button onclick="volverAlMenu()" class="solo-general bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
                 </div>
                 
                 <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 text-black bg-slate-700 p-4 rounded-2xl border border-slate-600 mb-2">
@@ -48,8 +49,7 @@
                     <select id="f-color" class="p-3 rounded-xl font-bold border-2 outline-none">
                         <option value="" disabled selected>COLOR</option>
                         <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option><option>ROBLE</option>
-                        <option>CAMBRIAN/BLANCO</option><option>BLANCO/PIZARRA</option>
-                        <option>CAMBRIAN/PIZARRA</option><option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
+                        <option>PIZARRA</option><option>GRIS</option>
                     </select>
                     <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold border-2 outline-none">
                     <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 p-3 transition shadow-lg">AÑADIR +</button>
@@ -85,17 +85,22 @@
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             
-            // LA NUEVA CONTRASEÑA AQUÍ
             if (pass === '12345CUCA') {
                 esAdmin = true;
-                document.body.classList.remove('modo-cliente');
+                document.body.classList.remove('modo-cliente', 'modo-solo-sofas');
                 document.getElementById('txt-bienvenida').innerText = "Panel de Control PROFESIONAL";
                 entrar();
             } else if (pass === 'INVITADO') {
                 esAdmin = false;
                 document.body.classList.add('modo-cliente');
+                document.body.classList.remove('modo-solo-sofas');
                 document.getElementById('txt-bienvenida').innerText = "Catálogo Online para Clientes";
                 entrar();
+            } else if (pass === 'SOFAS') {
+                esAdmin = false;
+                document.body.classList.add('modo-cliente', 'modo-solo-sofas');
+                document.getElementById('txt-bienvenida').innerText = "Catálogo de Sofás";
+                cargarStock('SOFAS'); // ENTRA DIRECTO A SOFAS
             } else {
                 alert("❌ Clave incorrecta.");
             }
@@ -108,6 +113,7 @@
 
         async function cargarStock(seccion) {
             seccionActual = seccion;
+            document.getElementById('pantalla-login').classList.add('hidden');
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = "LÍNEA " + seccion;
@@ -165,7 +171,7 @@
         }
 
         async function eliminarMueble(id) {
-            if(confirm("¿Seguro que quieres borrar este mueble?")) {
+            if(confirm("¿Seguro?")) {
                 await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
                 cargarStock(seccionActual);
             }
