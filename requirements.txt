@@ -1,4 +1,4 @@
-fastapi
-uvicorn
-motor
+flask
+flask-pymongo
+flask-cors
 dnspython
