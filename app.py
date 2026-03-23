@@ -7,8 +7,10 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Configuración de MongoDB
-app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "TU_MONGO_URI_AQUI")
+# --- TU DIRECCIÓN DE MONGODB (ADMIN) ---
+app.config["MONGO_URI"] = "mongodb+srv://ADMIN:TU_CONTRASEÑA_AQUÍ@stockescalu.mikltkh.mongodb.net/?appName=STOCKESCALU"
+# -----------------------------------------------------------------------
+
 mongo = PyMongo(app)
 
 @app.route('/')
@@ -17,10 +19,13 @@ def home():
 
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
-    productos = list(mongo.db.stock.find({'seccion': seccion}))
-    for p in productos:
-        p['_id'] = str(p['_id'])
-    return jsonify(productos)
+    try:
+        productos = list(mongo.db.stock.find({'seccion': seccion}))
+        for p in productos:
+            p['_id'] = str(p['_id'])
+        return jsonify(productos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/stock/agregar', methods=['POST'])
 def agregar_mueble():
@@ -35,28 +40,23 @@ def agregar_mueble():
     }).inserted_id
     return jsonify({'id': str(nuevo_id)})
 
-# FUNCION CORREGIDA PARA EVITAR ERROR 422
 @app.route('/stock/vender/<id>', methods=['PUT'])
 def vender_mueble(id):
-    # Cogemos los datos de la URL
     vendido = request.args.get('vendido')
     recepcionadas = request.args.get('recepcionadas')
-    
     update_data = {}
     
     if vendido is not None:
-        try:
-            update_data['vendido'] = int(float(vendido))
+        try: update_data['vendido'] = int(float(vendido))
         except: pass
         
     if recepcionadas is not None:
-        try:
-            update_data['recepcionadas'] = int(float(recepcionadas))
+        try: update_data['recepcionadas'] = int(float(recepcionadas))
         except: pass
 
     if update_data:
         mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_data})
-        return jsonify({'status': 'ok', 'actualizado': update_data}), 200
+        return jsonify({'status': 'ok'}), 200
     
     return jsonify({'error': 'No hay datos'}), 400
 
