@@ -17,8 +17,8 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
             <h1 class="text-4xl font-black text-white mb-6 italic tracking-tighter">IMMINENT</h1>
-            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500">
-            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl">ENTRAR</button>
+            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500 font-bold">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl uppercase">Entrar</button>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
@@ -51,7 +51,7 @@
                         <option>CAMBRIAN/BLANCO</option><option>TIBET/PIZARRA</option><option>CAMBRIAN/PIZARRA</option><option>ROBLE/BLANCO</option><option>GRIS</option>
                     </select>
                     <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl p-3 shadow-lg">AÑADIR +</button>
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl p-3 shadow-lg hover:bg-green-500 transition">AÑADIR +</button>
                 </div>
             </div>
 
@@ -125,31 +125,44 @@
                             <td class="p-4 text-xs"><span>${m.color}</span></td>
                             <td class="p-4 text-center solo-admin">
                                 <div class="flex items-center justify-center gap-2">
-                                    <span class="text-green-400 text-lg">${m.recepcionadas}</span>
-                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas}, ${m.vendido})" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-500 font-black"> + </button>
+                                    <span class="text-green-400 text-lg font-bold">${m.recepcionadas}</span>
+                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas}, ${m.vendido})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-500 font-black shadow-md active:scale-90"> + </button>
                                 </div>
                             </td>
                             <td class="p-4 text-center solo-admin">
-                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded bg-white text-black text-center">
+                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value, ${m.recepcionadas})" class="w-16 p-2 rounded-lg bg-white text-black text-center font-bold">
                             </td>
                             <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
                             <td class="p-4 text-center solo-admin">
-                                <button onclick="eliminarMueble('${m._id}')" class="text-red-500 text-xl">🗑️</button>
+                                <button onclick="eliminarMueble('${m._id}')" class="text-red-500 text-2xl hover:scale-110 transition">🗑️</button>
                             </td>
                         </tr>`;
                 });
             } catch (error) { alert("Error al cargar."); }
         }
 
-        // FUNCIÓN CORREGIDA PARA SUMAR MERCANCÍA
+        // FUNCIÓN DEFINITIVA PARA ACTUALIZAR DATOS
+        async function enviarActualizacion(id, nuevasRec, nuevasVen) {
+            try {
+                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevasRec}&vendido=${nuevasVen}`, { 
+                    method: 'PUT'
+                });
+                cargarStock(seccionActual);
+            } catch (e) {
+                alert("Error al guardar cambios.");
+            }
+        }
+
         async function sumarMercancia(id, actualRec, actualVen) {
             const extra = prompt("¿Cuántas unidades nuevas han llegado?");
             if (extra !== null && extra !== "" && !isNaN(extra)) {
                 const nuevoRec = parseInt(actualRec) + parseInt(extra);
-                // Enviamos AMBOS parámetros para asegurar que el servidor los acepte
-                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevoRec}&vendido=${actualVen}`, { method: 'PUT' });
-                cargarStock(seccionActual);
+                await enviarActualizacion(id, nuevoRec, actualVen);
             }
+        }
+
+        async function actualizarVenta(id, cantidad, actualRec) {
+            await enviarActualizacion(id, actualRec, cantidad);
         }
 
         async function guardarMueble() {
@@ -166,12 +179,9 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(nuevo)
             });
-            document.getElementById('f-ref').value = ""; document.getElementById('f-desc').value = ""; document.getElementById('f-rec').value = "";
-            cargarStock(seccionActual);
-        }
-
-        async function actualizarVenta(id, cantidad) {
-            await fetch(`${URL_API}/stock/vender/${id}?vendido=${cantidad}`, {method: 'PUT'});
+            document.getElementById('f-ref').value = ""; 
+            document.getElementById('f-desc').value = ""; 
+            document.getElementById('f-rec').value = "";
             cargarStock(seccionActual);
         }
 
