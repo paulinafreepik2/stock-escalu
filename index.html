@@ -126,7 +126,7 @@
                             <td class="p-4 text-center solo-admin">
                                 <div class="flex items-center justify-center gap-2">
                                     <span class="text-green-400 text-lg">${m.recepcionadas}</span>
-                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas})" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-500 font-black"> + </button>
+                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas}, ${m.vendido})" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-500 font-black"> + </button>
                                 </div>
                             </td>
                             <td class="p-4 text-center solo-admin">
@@ -141,11 +141,13 @@
             } catch (error) { alert("Error al cargar."); }
         }
 
-        async function sumarMercancia(id, actual) {
+        // FUNCIÓN CORREGIDA PARA SUMAR MERCANCÍA
+        async function sumarMercancia(id, actualRec, actualVen) {
             const extra = prompt("¿Cuántas unidades nuevas han llegado?");
-            if (extra !== null && !isNaN(extra)) {
-                const nuevoTotal = parseInt(actual) + parseInt(extra);
-                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevoTotal}`, { method: 'PUT' });
+            if (extra !== null && extra !== "" && !isNaN(extra)) {
+                const nuevoRec = parseInt(actualRec) + parseInt(extra);
+                // Enviamos AMBOS parámetros para asegurar que el servidor los acepte
+                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevoRec}&vendido=${actualVen}`, { method: 'PUT' });
                 cargarStock(seccionActual);
             }
         }
