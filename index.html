@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK IMMINENT - Catálogo Online</title>
+    <title>STOCK IMMINENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .overflow-x-auto::-webkit-scrollbar { height: 8px; }
-        .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .modo-cliente .solo-admin { display: none !important; }
         .modo-solo-sofas .solo-general { display: none !important; }
     </style>
@@ -15,57 +13,56 @@
 <body class="bg-slate-900 text-white font-sans">
     <div class="max-w-6xl mx-auto p-2 md:p-4">
         
-        <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
-            <h1 class="text-4xl font-black text-white mb-6 italic tracking-tighter">IMMINENT</h1>
-            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500 font-bold">
-            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl uppercase">Entrar</button>
+        <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700">
+            <h1 class="text-4xl font-black mb-6 italic tracking-tighter">IMMINENT</h1>
+            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
             <header class="mb-10">
-                <h1 class="text-5xl md:text-7xl font-black italic drop-shadow-lg tracking-tighter text-white">IMMINENT</h1>
-                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase tracking-widest bg-slate-800 inline-block px-4 py-1 rounded-full text-xs md:text-sm"></p>
+                <h1 class="text-6xl font-black italic text-white tracking-tighter">IMMINENT</h1>
+                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-sm"></p>
             </header>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <button onclick="cargarStock('DAKOTA')" class="solo-general bg-orange-800 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-orange-900">🌲 DAKOTA</button>
-                <button onclick="cargarStock('DIURNO')" class="solo-general bg-sky-600 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-sky-800">🌅 DIURNO</button>
-                <button onclick="cargarStock('NOCTURNO')" class="solo-general bg-indigo-900 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-indigo-950">🌙 NOCTURNO</button>
-                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl text-2xl font-bold italic shadow-xl hover:scale-105 transition border-b-4 border-red-900">🛋️ SOFÁS</button>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button onclick="cargarStock('DAKOTA')" class="solo-general bg-orange-800 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="solo-general bg-sky-600 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="solo-general bg-indigo-900 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🛋️ SOFÁS</button>
             </div>
         </div>
 
         <div id="vista-stock" class="hidden mt-2">
-            <div class="bg-slate-800 p-4 md:p-6 rounded-3xl border border-slate-700 shadow-xl mb-6">
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-6">
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                    <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
+                    <h2 id="titulo-linea" class="text-3xl font-black text-yellow-500 italic uppercase"></h2>
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por REF o DESC..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
                     <button onclick="volverAlMenu()" class="solo-general bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
                 </div>
                 
-                <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 text-black bg-slate-700 p-4 rounded-2xl border border-slate-600 mb-2">
-                    <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold uppercase">
-                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl font-bold uppercase">
-                    <select id="f-color" class="p-3 rounded-xl font-bold">
-                        <option value="" disabled selected>COLOR</option>
+                <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-700 p-4 rounded-2xl mb-2">
+                    <input id="f-ref" placeholder="REF" class="p-3 rounded-xl text-black font-bold uppercase">
+                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl text-black font-bold uppercase">
+                    <select id="f-color" class="p-3 rounded-xl text-black font-bold">
                         <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option><option>ROBLE</option><option>PIZARRA</option>
                         <option>CAMBRIAN/BLANCO</option><option>TIBET/PIZARRA</option><option>CAMBRIAN/PIZARRA</option><option>ROBLE/BLANCO</option><option>GRIS</option>
                     </select>
-                    <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl p-3 shadow-lg hover:bg-green-500 transition">AÑADIR +</button>
+                    <input id="f-rec" type="number" placeholder="CANTIDAD" class="p-3 rounded-xl text-black font-bold">
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl p-3 hover:bg-green-500 transition">AÑADIR PRODUCTO</button>
                 </div>
             </div>
 
-            <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
+            <div class="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl">
                 <div class="overflow-x-auto"> 
-                    <table class="w-full text-left min-w-[750px]" id="tabla-muebles">
-                        <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
+                    <table class="w-full text-left min-w-[800px]">
+                        <thead class="bg-slate-700 text-slate-300 text-xs font-black uppercase">
                             <tr>
                                 <th class="p-4">REF</th>
                                 <th class="p-4">DESCRIPCIÓN</th>
                                 <th class="p-4">COLOR</th>
                                 <th class="p-4 text-center solo-admin">RECIBIDAS</th>
                                 <th class="p-4 text-center solo-admin">VENDIDO</th>
-                                <th class="p-4 text-center text-white font-bold">STOCK</th>
+                                <th class="p-4 text-center text-white font-bold text-lg">STOCK</th>
                                 <th class="p-4 text-center solo-admin">ACCIONES</th>
                             </tr>
                         </thead>
@@ -79,23 +76,23 @@
     <script>
         let seccionActual = "";
         let esAdmin = false;
+        // IMPORTANTE: Asegúrate de que esta URL sea la de tu Render
         const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             if (pass === '12345CUCA') {
-                esAdmin = true; entrar();
-                document.getElementById('txt-bienvenida').innerText = "Panel Control IMMINENT";
+                esAdmin = true; entrar("Panel Control IMMINENT");
             } else if (pass === 'INVITADO') {
-                esAdmin = false; document.body.classList.add('modo-cliente'); entrar();
-                document.getElementById('txt-bienvenida').innerText = "Catálogo Online IMMINENT";
+                esAdmin = false; document.body.classList.add('modo-cliente'); entrar("Catálogo IMMINENT");
             } else if (pass === 'SOFAS') {
                 esAdmin = false; document.body.classList.add('modo-cliente', 'modo-solo-sofas');
                 cargarStock('SOFAS');
             } else { alert("❌ Clave incorrecta."); }
         }
 
-        function entrar() {
+        function entrar(txt) {
+            document.getElementById('txt-bienvenida').innerText = txt;
             document.getElementById('pantalla-login').classList.add('hidden');
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
@@ -115,22 +112,22 @@
                 
                 datos.forEach(m => {
                     const stock = m.recepcionadas - m.vendido;
-                    let colorStock = stock <= 1 ? "text-red-500 animate-pulse text-2xl" : "text-white";
+                    let colorStock = stock <= 1 ? "text-red-500 animate-pulse text-2xl" : "text-white text-xl";
                     if (stock <= 0) colorStock = "text-slate-600";
 
                     tabla.innerHTML += `
-                        <tr class="hover:bg-slate-700/50 transition">
-                            <td class="p-4 text-blue-400 font-mono text-sm">${m.ref}</td>
+                        <tr class="hover:bg-slate-700/50 transition border-slate-700">
+                            <td class="p-4 text-blue-400 font-mono font-bold">${m.ref}</td>
                             <td class="p-4 text-sm">${m.descripcion}</td>
-                            <td class="p-4 text-xs"><span>${m.color}</span></td>
+                            <td class="p-4 text-xs font-normal">${m.color}</td>
                             <td class="p-4 text-center solo-admin">
                                 <div class="flex items-center justify-center gap-2">
-                                    <span class="text-green-400 text-lg font-bold">${m.recepcionadas}</span>
-                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas}, ${m.vendido})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-500 font-black shadow-md active:scale-90"> + </button>
+                                    <span class="text-green-400 font-bold text-lg">${m.recepcionadas}</span>
+                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas})" class="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-black hover:bg-green-500 active:scale-90 transition shadow-md"> + </button>
                                 </div>
                             </td>
                             <td class="p-4 text-center solo-admin">
-                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value, ${m.recepcionadas})" class="w-16 p-2 rounded-lg bg-white text-black text-center font-bold">
+                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded bg-white text-black text-center font-bold">
                             </td>
                             <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
                             <td class="p-4 text-center solo-admin">
@@ -138,38 +135,29 @@
                             </td>
                         </tr>`;
                 });
-            } catch (error) { alert("Error al cargar."); }
+            } catch (e) { console.error(e); }
         }
 
-        // FUNCIÓN DEFINITIVA PARA ACTUALIZAR DATOS
-        async function enviarActualizacion(id, nuevasRec, nuevasVen) {
-            try {
-                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevasRec}&vendido=${nuevasVen}`, { 
-                    method: 'PUT'
-                });
-                cargarStock(seccionActual);
-            } catch (e) {
-                alert("Error al guardar cambios.");
-            }
-        }
-
-        async function sumarMercancia(id, actualRec, actualVen) {
+        // FUNCIÓN QUE SUMA A LAS UNIDADES RECIBIDAS
+        async function sumarMercancia(id, actualRec) {
             const extra = prompt("¿Cuántas unidades nuevas han llegado?");
             if (extra !== null && extra !== "" && !isNaN(extra)) {
-                const nuevoRec = parseInt(actualRec) + parseInt(extra);
-                await enviarActualizacion(id, nuevoRec, actualVen);
+                const nuevoTotal = parseInt(actualRec) + parseInt(extra);
+                await fetch(`${URL_API}/stock/vender/${id}?recepcionadas=${nuevoTotal}`, { method: 'PUT' });
+                cargarStock(seccionActual);
             }
         }
 
-        async function actualizarVenta(id, cantidad, actualRec) {
-            await enviarActualizacion(id, actualRec, cantidad);
+        async function actualizarVenta(id, cantidad) {
+            await fetch(`${URL_API}/stock/vender/${id}?vendido=${cantidad}`, { method: 'PUT' });
+            cargarStock(seccionActual);
         }
 
         async function guardarMueble() {
             const nuevo = {
                 ref: document.getElementById('f-ref').value.toUpperCase(),
                 descripcion: document.getElementById('f-desc').value.toUpperCase(),
-                color: document.getElementById('f-color').value || "S/C",
+                color: document.getElementById('f-color').value,
                 recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
                 vendido: 0,
                 seccion: seccionActual
@@ -179,14 +167,14 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(nuevo)
             });
-            document.getElementById('f-ref').value = ""; 
-            document.getElementById('f-desc').value = ""; 
+            document.getElementById('f-ref').value = "";
+            document.getElementById('f-desc').value = "";
             document.getElementById('f-rec').value = "";
             cargarStock(seccionActual);
         }
 
         async function eliminarMueble(id) {
-            if(confirm("¿Borrar producto?")) {
+            if(confirm("¿Borrar producto definitivamente?")) {
                 await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
                 cargarStock(seccionActual);
             }
