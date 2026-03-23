@@ -6,11 +6,8 @@
     <title>STOCK ESCALU - Catálogo Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilo para la barra de desplazamiento lateral */
         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
         .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        
-        /* ESTA ES LA MAGIA: Oculta cosas cuando el cuerpo tiene la clase 'modo-cliente' */
         .modo-cliente .solo-admin { display: none !important; }
     </style>
 </head>
@@ -85,11 +82,11 @@
         let esAdmin = false;
         const URL_API = "https://stock-escalu-app.onrender.com";
 
-        // FUNCIÓN DE VERIFICACIÓN CORREGIDA
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             
-            if (pass === '12345') {
+            // LA NUEVA CONTRASEÑA AQUÍ
+            if (pass === '12345CUCA') {
                 esAdmin = true;
                 document.body.classList.remove('modo-cliente');
                 document.getElementById('txt-bienvenida').innerText = "Panel de Control PROFESIONAL";
@@ -100,7 +97,7 @@
                 document.getElementById('txt-bienvenida').innerText = "Catálogo Online para Clientes";
                 entrar();
             } else {
-                alert("❌ Clave incorrecta. Prueba con 12345 o INVITADO");
+                alert("❌ Clave incorrecta.");
             }
         }
 
@@ -143,7 +140,7 @@
                         </tr>`;
                 });
             } catch (error) {
-                alert("Error conectando con el servidor. Espera unos segundos.");
+                alert("Error conectando con el servidor.");
             }
         }
 
