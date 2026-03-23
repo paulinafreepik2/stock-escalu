@@ -7,9 +7,9 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# --- TU DIRECCIÓN DE MONGODB (ADMIN) ---
-app.config["MONGO_URI"] = "mongodb+srv://ADMIN:TU_CONTRASEÑA_AQUÍ@stockescalu.mikltkh.mongodb.net/?appName=STOCKESCALU"
-# -----------------------------------------------------------------------
+# --- CONFIGURACIÓN CON TU USUARIO ADMIN Y CONTRASEÑA ADMIN ---
+app.config["MONGO_URI"] = "mongodb+srv://ADMIN:ADMIN@stockescalu.mikltkh.mongodb.net/test?retryWrites=true&w=majority&appName=STOCKESCALU"
+# --------------------------------------------------------------
 
 mongo = PyMongo(app)
 
@@ -20,6 +20,7 @@ def home():
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
     try:
+        # Buscamos en la colección 'stock'
         productos = list(mongo.db.stock.find({'seccion': seccion}))
         for p in productos:
             p['_id'] = str(p['_id'])
@@ -29,16 +30,19 @@ def get_stock(seccion):
 
 @app.route('/stock/agregar', methods=['POST'])
 def agregar_mueble():
-    datos = request.json
-    nuevo_id = mongo.db.stock.insert_one({
-        'ref': datos['ref'],
-        'descripcion': datos['descripcion'],
-        'color': datos['color'],
-        'recepcionadas': int(datos['recepcionadas']),
-        'vendido': int(datos['vendido']),
-        'seccion': datos['seccion']
-    }).inserted_id
-    return jsonify({'id': str(nuevo_id)})
+    try:
+        datos = request.json
+        nuevo_id = mongo.db.stock.insert_one({
+            'ref': datos['ref'],
+            'descripcion': datos['descripcion'],
+            'color': datos['color'],
+            'recepcionadas': int(datos['recepcionadas']),
+            'vendido': int(datos['vendido']),
+            'seccion': datos['seccion']
+        }).inserted_id
+        return jsonify({'id': str(nuevo_id)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/stock/vender/<id>', methods=['PUT'])
 def vender_mueble(id):
@@ -56,7 +60,7 @@ def vender_mueble(id):
 
     if update_data:
         mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_data})
-        return jsonify({'status': 'ok'}), 200
+        return jsonify({'status': 'ok', 'updated': update_data}), 200
     
     return jsonify({'error': 'No hay datos'}), 400
 
@@ -66,4 +70,4 @@ def eliminar_mueble(id):
     return jsonify({'msg': 'Eliminado'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)True)
