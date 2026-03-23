@@ -7,15 +7,14 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Configuración de MongoDB (Asegúrate de tener tu variable de entorno en Render)
-app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "tu_mongodb_uri_aqui")
+# Configuración de MongoDB
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "TU_MONGO_URI_AQUI")
 mongo = PyMongo(app)
 
 @app.route('/')
 def home():
     return "Servidor IMMINENT Funcionando"
 
-# 1. OBTENER STOCK POR SECCIÓN
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
     productos = list(mongo.db.stock.find({'seccion': seccion}))
@@ -23,7 +22,6 @@ def get_stock(seccion):
         p['_id'] = str(p['_id'])
     return jsonify(productos)
 
-# 2. AÑADIR NUEVO PRODUCTO
 @app.route('/stock/agregar', methods=['POST'])
 def agregar_mueble():
     datos = request.json
@@ -37,29 +35,31 @@ def agregar_mueble():
     }).inserted_id
     return jsonify({'id': str(nuevo_id)})
 
-# 3. ACTUALIZAR (VENTAS O RECIBIDAS) - ¡ESTA ES LA QUE HEMOS ARREGLADO!
+# FUNCION CORREGIDA PARA EVITAR ERROR 422
 @app.route('/stock/vender/<id>', methods=['PUT'])
 def vender_mueble(id):
+    # Cogemos los datos de la URL
     vendido = request.args.get('vendido')
     recepcionadas = request.args.get('recepcionadas')
     
-    update_fields = {}
+    update_data = {}
     
-    # Si enviamos 'vendido' por la URL, lo actualiza
     if vendido is not None:
-        update_fields['vendido'] = int(vendido)
+        try:
+            update_data['vendido'] = int(float(vendido))
+        except: pass
         
-    # Si enviamos 'recepcionadas' (el botón +), lo actualiza
     if recepcionadas is not None:
-        update_fields['recepcionadas'] = int(recepcionadas)
-        
-    if update_fields:
-        mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
-        return jsonify({'msg': 'Datos actualizados'})
-    
-    return jsonify({'msg': 'No se enviaron datos'}), 400
+        try:
+            update_data['recepcionadas'] = int(float(recepcionadas))
+        except: pass
 
-# 4. ELIMINAR PRODUCTO
+    if update_data:
+        mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_data})
+        return jsonify({'status': 'ok', 'actualizado': update_data}), 200
+    
+    return jsonify({'error': 'No hay datos'}), 400
+
 @app.route('/stock/eliminar/<id>', methods=['DELETE'])
 def eliminar_mueble(id):
     mongo.db.stock.delete_one({'_id': ObjectId(id)})
