@@ -8,7 +8,8 @@ app = Flask(__name__)
 CORS(app)
 
 # --- CONFIGURACIÓN CON TU USUARIO ADMIN Y CONTRASEÑA ADMIN ---
-app.config["MONGO_URI"] = "mongodb+srv://ADMIN:ADMIN@stockescalu.mikltkh.mongodb.net/test?retryWrites=true&w=majority&appName=STOCKESCALU"
+# He añadido 'stock_db' al final para que sepa exactamente a qué base de datos ir
+app.config["MONGO_URI"] = "mongodb+srv://ADMIN:ADMIN@stockescalu.mikltkh.mongodb.net/stock_db?retryWrites=true&w=majority"
 # --------------------------------------------------------------
 
 mongo = PyMongo(app)
@@ -20,13 +21,14 @@ def home():
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
     try:
-        # Buscamos en la colección 'stock'
+        # Buscamos en la coleccion 'stock'
         productos = list(mongo.db.stock.find({'seccion': seccion}))
         for p in productos:
             p['_id'] = str(p['_id'])
         return jsonify(productos)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error en GET: {e}")
+        return jsonify([]), 200
 
 @app.route('/stock/agregar', methods=['POST'])
 def agregar_mueble():
@@ -46,28 +48,34 @@ def agregar_mueble():
 
 @app.route('/stock/vender/<id>', methods=['PUT'])
 def vender_mueble(id):
-    vendido = request.args.get('vendido')
-    recepcionadas = request.args.get('recepcionadas')
-    update_data = {}
-    
-    if vendido is not None:
-        try: update_data['vendido'] = int(float(vendido))
-        except: pass
+    try:
+        vendido = request.args.get('vendido')
+        recepcionadas = request.args.get('recepcionadas')
+        update_data = {}
         
-    if recepcionadas is not None:
-        try: update_data['recepcionadas'] = int(float(recepcionadas))
-        except: pass
+        if vendido is not None:
+            update_data['vendido'] = int(float(vendido))
+            
+        if recepcionadas is not None:
+            update_data['recepcionadas'] = int(float(recepcionadas))
 
-    if update_data:
-        mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_data})
-        return jsonify({'status': 'ok', 'updated': update_data}), 200
-    
-    return jsonify({'error': 'No hay datos'}), 400
+        if update_data:
+            mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_data})
+            return jsonify({'status': 'ok'}), 200
+        
+        return jsonify({'error': 'No hay datos'}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/stock/eliminar/<id>', methods=['DELETE'])
 def eliminar_mueble(id):
-    mongo.db.stock.delete_one({'_id': ObjectId(id)})
-    return jsonify({'msg': 'Eliminado'})
+    try:
+        mongo.db.stock.delete_one({'_id': ObjectId(id)})
+        return jsonify({'msg': 'Eliminado'})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)True)
+    # Usamos el puerto que nos dé Render o el 5000 por defecto
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
