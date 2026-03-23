@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK ESCALU - Catálogo</title>
+    <title>STOCK ESCALU - Catálogo Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Estilo para la barra de desplazamiento lateral */
         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
         .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        
+        /* ESTA ES LA MAGIA: Oculta cosas cuando el cuerpo tiene la clase 'modo-cliente' */
         .modo-cliente .solo-admin { display: none !important; }
     </style>
 </head>
@@ -16,15 +19,16 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
             <h1 class="text-4xl font-black text-blue-500 mb-6 italic">STOCK ESCALU</h1>
-            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none">
-            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg">ENTRAR</button>
-            <p class="text-slate-500 mt-4 text-xs">Consulta tu stock en tiempo real</p>
+            <p class="text-slate-400 mb-4 text-sm font-bold">INTRODUCE TU CLAVE DE ACCESO</p>
+            <input id="input-pass" type="text" placeholder="Escribe aquí..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500 shadow-inner">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl">ENTRAR</button>
+            <p class="text-slate-500 mt-6 text-xs uppercase tracking-widest">Consulta de Stock en Tiempo Real</p>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
             <header class="mb-10">
                 <h1 class="text-5xl md:text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
-                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase tracking-widest"></p>
+                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase tracking-widest bg-slate-800 inline-block px-4 py-1 rounded-full text-xs md:text-sm"></p>
             </header>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 md:p-10 rounded-3xl text-2xl md:text-3xl font-bold italic shadow-xl hover:scale-105 transition">🌲 DAKOTA</button>
@@ -38,10 +42,10 @@
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 uppercase italic"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por REF o DESCRIPCIÓN..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold outline-none focus:border-yellow-500">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600">VOLVER</button>
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
                 </div>
                 
-                <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 text-black bg-slate-700 p-4 rounded-2xl">
+                <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 text-black bg-slate-700 p-4 rounded-2xl border border-slate-600 mb-2">
                     <input id="f-ref" placeholder="REF" class="p-3 rounded-xl font-bold border-2 outline-none uppercase">
                     <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-3 rounded-xl font-bold border-2 outline-none uppercase">
                     <select id="f-color" class="p-3 rounded-xl font-bold border-2 outline-none">
@@ -51,13 +55,13 @@
                         <option>CAMBRIAN/PIZARRA</option><option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
                     </select>
                     <input id="f-rec" type="number" placeholder="RECIBIDAS" class="p-3 rounded-xl font-bold border-2 outline-none">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 p-3">AÑADIR +</button>
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-xl hover:bg-green-500 p-3 transition shadow-lg">AÑADIR +</button>
                 </div>
             </div>
 
             <div class="bg-slate-800 rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
                 <div class="overflow-x-auto"> 
-                    <table class="w-full text-left min-w-[700px]" id="tabla-muebles">
+                    <table class="w-full text-left min-w-[750px]" id="tabla-muebles">
                         <thead class="bg-slate-700 text-slate-300 uppercase text-xs font-black">
                             <tr>
                                 <th class="p-4">REF</th>
@@ -81,20 +85,22 @@
         let esAdmin = false;
         const URL_API = "https://stock-escalu-app.onrender.com";
 
+        // FUNCIÓN DE VERIFICACIÓN CORREGIDA
         function verificar() {
-            const pass = document.getElementById('input-pass').value;
+            const pass = document.getElementById('input-pass').value.trim().toUpperCase();
+            
             if (pass === '12345') {
                 esAdmin = true;
                 document.body.classList.remove('modo-cliente');
                 document.getElementById('txt-bienvenida').innerText = "Panel de Control PROFESIONAL";
                 entrar();
-            } else if (pass.toUpperCase() === 'INVITADO') {
+            } else if (pass === 'INVITADO') {
                 esAdmin = false;
                 document.body.classList.add('modo-cliente');
-                document.getElementById('txt-bienvenida').innerText = "Catálogo Online Clientes";
+                document.getElementById('txt-bienvenida').innerText = "Catálogo Online para Clientes";
                 entrar();
             } else {
-                alert("Clave incorrecta");
+                alert("❌ Clave incorrecta. Prueba con 12345 o INVITADO");
             }
         }
 
@@ -128,16 +134,16 @@
                             <td class="p-4 text-xs"><span class="bg-slate-900 p-2 rounded-lg border border-slate-600">${m.color}</span></td>
                             <td class="p-4 text-center text-green-400 text-lg solo-admin">${m.recepcionadas}</td>
                             <td class="p-4 text-center solo-admin">
-                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded-lg text-center font-bold bg-white text-black">
+                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded-lg text-center font-bold bg-white text-black outline-none focus:ring-2 focus:ring-blue-500">
                             </td>
                             <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
                             <td class="p-4 text-center solo-admin">
-                                <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg">🗑️</button>
+                                <button onclick="eliminarMueble('${m._id}')" class="bg-red-600/20 text-red-500 p-2 rounded-lg hover:bg-red-600 hover:text-white transition">🗑️</button>
                             </td>
                         </tr>`;
                 });
             } catch (error) {
-                alert("Error conectando con el servidor.");
+                alert("Error conectando con el servidor. Espera unos segundos.");
             }
         }
 
@@ -162,7 +168,7 @@
         }
 
         async function eliminarMueble(id) {
-            if(confirm("¿Seguro?")) {
+            if(confirm("¿Seguro que quieres borrar este mueble?")) {
                 await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
                 cargarStock(seccionActual);
             }
