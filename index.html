@@ -9,6 +9,7 @@
         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
         .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .modo-cliente .solo-admin { display: none !important; }
+        /* Oculta el menú y el botón volver si es cliente de solo sofás */
         .modo-solo-sofas .solo-general { display: none !important; }
     </style>
 </head>
@@ -89,30 +90,30 @@
                 esAdmin = true;
                 document.body.classList.remove('modo-cliente', 'modo-solo-sofas');
                 document.getElementById('txt-bienvenida').innerText = "Panel de Control PROFESIONAL";
-                entrar();
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'INVITADO') {
                 esAdmin = false;
                 document.body.classList.add('modo-cliente');
                 document.body.classList.remove('modo-solo-sofas');
                 document.getElementById('txt-bienvenida').innerText = "Catálogo Online para Clientes";
-                entrar();
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'SOFAS') {
                 esAdmin = false;
+                // Aplicamos ambos modos: cliente (no edita) y solo-sofas (no ve botones)
                 document.body.classList.add('modo-cliente', 'modo-solo-sofas');
                 document.getElementById('txt-bienvenida').innerText = "Catálogo de Sofás";
-                cargarStock('SOFAS'); // ENTRA DIRECTO A SOFAS
+                // IMPORTANTE: Salta directo a cargar la sección
+                cargarStock('SOFAS');
             } else {
                 alert("❌ Clave incorrecta.");
             }
         }
 
-        function entrar() {
-            document.getElementById('pantalla-login').classList.add('hidden');
-            document.getElementById('menu-secciones').classList.remove('hidden');
-        }
-
         async function cargarStock(seccion) {
             seccionActual = seccion;
+            // Ocultamos todo lo demás
             document.getElementById('pantalla-login').classList.add('hidden');
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
