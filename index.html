@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK ESCALU - Catálogo Online</title>
+    <title>STOCK IMMINENT - Catálogo Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .overflow-x-auto::-webkit-scrollbar { height: 8px; }
         .overflow-x-auto::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         .modo-cliente .solo-admin { display: none !important; }
-        /* Oculta el menú y el botón volver si es cliente de solo sofás */
         .modo-solo-sofas .solo-general { display: none !important; }
     </style>
 </head>
@@ -17,7 +16,7 @@
     <div class="max-w-6xl mx-auto p-2 md:p-4">
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700 text-center">
-            <h1 class="text-4xl font-black text-blue-500 mb-6 italic">STOCK ESCALU</h1>
+            <h1 class="text-4xl font-black text-blue-500 mb-6 italic tracking-tighter text-white">IMMINENT</h1>
             <p class="text-slate-400 mb-4 text-sm font-bold uppercase">Introduce Clave de Acceso</p>
             <input id="input-pass" type="text" placeholder="Escribe aquí..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl outline-none focus:border-blue-500">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold hover:bg-blue-500 transition shadow-lg active:scale-95 text-xl">ENTRAR</button>
@@ -25,7 +24,7 @@
 
         <div id="menu-secciones" class="hidden text-center">
             <header class="mb-10">
-                <h1 class="text-5xl md:text-6xl font-black text-blue-500 italic drop-shadow-lg">ESCALU</h1>
+                <h1 class="text-5xl md:text-7xl font-black italic drop-shadow-lg tracking-tighter text-white">IMMINENT</h1>
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase tracking-widest bg-slate-800 inline-block px-4 py-1 rounded-full text-xs md:text-sm"></p>
             </header>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -89,22 +88,20 @@
             if (pass === '12345CUCA') {
                 esAdmin = true;
                 document.body.classList.remove('modo-cliente', 'modo-solo-sofas');
-                document.getElementById('txt-bienvenida').innerText = "Panel de Control PROFESIONAL";
+                document.getElementById('txt-bienvenida').innerText = "Panel Control IMMINENT";
                 document.getElementById('pantalla-login').classList.add('hidden');
                 document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'INVITADO') {
                 esAdmin = false;
                 document.body.classList.add('modo-cliente');
                 document.body.classList.remove('modo-solo-sofas');
-                document.getElementById('txt-bienvenida').innerText = "Catálogo Online para Clientes";
+                document.getElementById('txt-bienvenida').innerText = "Catálogo Online IMMINENT";
                 document.getElementById('pantalla-login').classList.add('hidden');
                 document.getElementById('menu-secciones').classList.remove('hidden');
             } else if (pass === 'SOFAS') {
                 esAdmin = false;
-                // Aplicamos ambos modos: cliente (no edita) y solo-sofas (no ve botones)
                 document.body.classList.add('modo-cliente', 'modo-solo-sofas');
-                document.getElementById('txt-bienvenida').innerText = "Catálogo de Sofás";
-                // IMPORTANTE: Salta directo a cargar la sección
+                document.getElementById('txt-bienvenida').innerText = "Catálogo de Sofás IMMINENT";
                 cargarStock('SOFAS');
             } else {
                 alert("❌ Clave incorrecta.");
@@ -113,7 +110,6 @@
 
         async function cargarStock(seccion) {
             seccionActual = seccion;
-            // Ocultamos todo lo demás
             document.getElementById('pantalla-login').classList.add('hidden');
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
