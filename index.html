@@ -30,6 +30,12 @@
                 <button onclick="cargarStock('NOCTURNO')" class="solo-general bg-indigo-900 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🌙 NOCTURNO</button>
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl text-2xl font-bold shadow-xl hover:scale-105 transition">🛋️ SOFÁS</button>
             </div>
+
+            <div class="solo-admin mt-12 p-6 bg-slate-800 rounded-3xl border border-slate-700 max-w-md mx-auto">
+                <h3 class="font-bold mb-4 text-slate-300">📁 IMPORTAR DESDE EXCEL</h3>
+                <input type="file" id="excelFile" accept=".xlsx" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
+                <button onclick="subirExcel()" class="mt-4 w-full bg-green-600 p-2 rounded-xl font-bold hover:bg-green-500 transition">SUBIR EXCEL</button>
+            </div>
         </div>
 
         <div id="vista-stock" class="hidden mt-2">
@@ -76,7 +82,6 @@
     <script>
         let seccionActual = "";
         let esAdmin = false;
-        // IMPORTANTE: Asegúrate de que esta URL sea la de tu Render
         const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
@@ -121,13 +126,16 @@
                             <td class="p-4 text-sm">${m.descripcion}</td>
                             <td class="p-4 text-xs font-normal">${m.color}</td>
                             <td class="p-4 text-center solo-admin">
-                                <div class="flex items-center justify-center gap-2">
-                                    <span class="text-green-400 font-bold text-lg">${m.recepcionadas}</span>
-                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas})" class="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-black hover:bg-green-500 active:scale-90 transition shadow-md"> + </button>
+                                <div class="flex items-center justify-center gap-3">
+                                    <span class="text-green-400 font-bold text-xl">${m.recepcionadas}</span>
+                                    <button onclick="sumarMercancia('${m._id}', ${m.recepcionadas})" class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black hover:bg-green-500 active:scale-90 transition shadow-lg"> + </button>
                                 </div>
                             </td>
                             <td class="p-4 text-center solo-admin">
-                                <input type="number" value="${m.vendido}" onchange="actualizarVenta('${m._id}', this.value)" class="w-16 p-2 rounded bg-white text-black text-center font-bold">
+                                <div class="flex items-center justify-center gap-3">
+                                    <span class="text-orange-400 font-bold text-xl">${m.vendido}</span>
+                                    <button onclick="sumarVenta('${m._id}', ${m.vendido})" class="bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black hover:bg-orange-500 active:scale-90 transition shadow-lg"> + </button>
+                                </div>
                             </td>
                             <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
                             <td class="p-4 text-center solo-admin">
@@ -138,7 +146,6 @@
             } catch (e) { console.error(e); }
         }
 
-        // FUNCIÓN QUE SUMA A LAS UNIDADES RECIBIDAS
         async function sumarMercancia(id, actualRec) {
             const extra = prompt("¿Cuántas unidades nuevas han llegado?");
             if (extra !== null && extra !== "" && !isNaN(extra)) {
@@ -148,8 +155,10 @@
             }
         }
 
-        async function actualizarVenta(id, cantidad) {
-            await fetch(`${URL_API}/stock/vender/${id}?vendido=${cantidad}`, { method: 'PUT' });
+        // NUEVA FUNCIÓN PARA SUMAR VENTA CON EL BOTÓN +
+        async function sumarVenta(id, valorActual) {
+            const nuevoValor = valorActual + 1;
+            await fetch(`${URL_API}/stock/vender/${id}?vendido=${nuevoValor}`, { method: 'PUT' });
             cargarStock(seccionActual);
         }
 
@@ -178,6 +187,25 @@
                 await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
                 cargarStock(seccionActual);
             }
+        }
+
+        // FUNCIÓN PARA SUBIR EL EXCEL
+        async function subirExcel() {
+            const fileInput = document.getElementById('excelFile');
+            if (fileInput.files.length === 0) return alert("Selecciona un archivo Excel primero");
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${URL_API}/stock/importar`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const res = await response.json();
+                alert(res.msg || "Importado correctamente");
+                location.reload();
+            } catch (e) { alert("Error al subir"); }
         }
 
         function filtrar() {
