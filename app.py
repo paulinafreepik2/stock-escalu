@@ -12,7 +12,7 @@ mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-    return "Servidor ESCALU OK"
+    return "Servidor ESCALU FUNCIONANDO"
 
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
