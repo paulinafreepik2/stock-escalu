@@ -1,89 +1,82 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from flask_cors import CORS
-from bson.objectid import ObjectId
-import os
+from bson import ObjectId
+import pandas as pd
+import io
 
 app = Flask(__name__)
-# Permite la comunicación entre GitHub Pages y Render
 CORS(app)
 
-# --- CONEXIÓN CON EL NUEVO USUARIO Y CONTRASEÑA ---
-# Usamos el usuario 'usuario_web' y la contraseña que has generado
+# Tu conexión segura
 app.config["MONGO_URI"] = "mongodb+srv://usuario_web:FEh8oeAhmoSPFqhn@stockescalu.mikltkh.mongodb.net/ESCALU_DB?retryWrites=true&w=majority&authSource=admin"
-# -------------------------------------------------
-
 mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-    return "Servidor ESCALU funcionando en Starter - Conexión OK"
+    return "Servidor ESCALU funcionando"
 
-# 1. OBTENER STOCK POR SECCIÓN
+# Obtener stock por sección
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
-    try:
-        # Buscamos en la colección 'stock' dentro de 'ESCALU_DB'
-        productos = list(mongo.db.stock.find({'seccion': seccion}))
-        for p in productos:
-            p['_id'] = str(p['_id'])
-        return jsonify(productos)
-    except Exception as e:
-        print(f"Error en GET: {e}")
-        return jsonify([]), 200
+    productos = list(mongo.db.stock.find({"seccion": seccion}))
+    for p in productos:
+        p['_id'] = str(p['_id'])
+    return jsonify(productos)
 
-# 2. AÑADIR NUEVO PRODUCTO
+# Agregar un producto manual
 @app.route('/stock/agregar', methods=['POST'])
-def agregar_mueble():
-    try:
-        datos = request.json
-        nuevo_id = mongo.db.stock.insert_one({
-            'ref': datos['ref'],
-            'descripcion': datos['descripcion'],
-            'color': datos['color'],
-            'recepcionadas': int(datos['recepcionadas']),
-            'vendido': int(datos['vendido']),
-            'seccion': datos['seccion']
-        }).inserted_id
-        return jsonify({'id': str(nuevo_id)})
-    except Exception as e:
-        print(f"Error en POST: {e}")
-        return jsonify({"error": str(e)}), 500
+def add_product():
+    data = request.json
+    mongo.db.stock.insert_one(data)
+    return jsonify({"msg": "Producto añadido"})
 
-# 3. ACTUALIZAR (VENTAS O RECIBIDAS)
+# Actualizar ventas o recepciones
 @app.route('/stock/vender/<id>', methods=['PUT'])
-def vender_mueble(id):
-    try:
-        vendido = request.args.get('vendido')
-        recepcionadas = request.args.get('recepcionadas')
-        
-        update_fields = {}
-        
-        if vendido is not None:
-            update_fields['vendido'] = int(float(vendido))
-            
-        if recepcionadas is not None:
-            update_fields['recepcionadas'] = int(float(recepcionadas))
-            
-        if update_fields:
-            mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$set': update_fields})
-            return jsonify({'msg': 'Datos actualizados'})
-        
-        return jsonify({'msg': 'No se enviaron datos'}), 400
-    except Exception as e:
-        print(f"Error en PUT: {e}")
-        return jsonify({"error": str(e)}), 500
+def update_stock(id):
+    vendido = request.args.get('vendido')
+    recep = request.args.get('recepcionadas')
+    
+    update_data = {}
+    if vendido is not None: update_data["vendido"] = int(vendido)
+    if recep is not None: update_data["recepcionadas"] = int(recep)
+    
+    mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$set": update_data})
+    return jsonify({"msg": "Actualizado"})
 
-# 4. ELIMINAR PRODUCTO
+# Eliminar producto
 @app.route('/stock/eliminar/<id>', methods=['DELETE'])
-def eliminar_mueble(id):
+def delete_product(id):
+    mongo.db.stock.delete_one({"_id": ObjectId(id)})
+    return jsonify({"msg": "Eliminado"})
+
+# --- NUEVA FUNCIÓN PARA IMPORTAR EXCEL ---
+@app.route('/stock/importar', methods=['POST'])
+def importar_excel():
     try:
-        mongo.db.stock.delete_one({'_id': ObjectId(id)})
-        return jsonify({'msg': 'Eliminado'})
+        if 'file' not in request.files:
+            return jsonify({"error": "No hay archivo"}), 400
+        
+        file = request.files['file']
+        # Leemos el Excel
+        df = pd.read_excel(file)
+        
+        # Limpiamos datos: rellenamos vacíos con 0 en los números
+        df['vendido'] = df['vendido'].fillna(0).astype(int)
+        df['recepcionadas'] = df['recepcionadas'].fillna(0).astype(int)
+        
+        # Convertimos a lista para MongoDB
+        datos = df.to_dict(orient='records')
+        
+        if len(datos) > 0:
+            mongo.db.stock.insert_many(datos)
+            return jsonify({"msg": f"¡Éxito! Se han cargado {len(datos)} productos."})
+        else:
+            return jsonify({"error": "El Excel está vacío"}), 400
+            
     except Exception as e:
+        print(f"Error: {e}")
         return jsonify({"error": str(e)}), 500
 
-# CONFIGURACIÓN PARA RENDER
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=10000)
