@@ -1,5 +1,6 @@
 flask
 flask-pymongo
 flask-cors
+pandas
+openpyxl
 gunicorn
-dnspython
