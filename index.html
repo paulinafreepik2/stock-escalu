@@ -32,8 +32,8 @@
 
             <div class="solo-admin mt-12 p-6 bg-slate-800 rounded-3xl border border-slate-700 max-w-sm mx-auto shadow-xl">
                 <p class="mb-3 font-bold text-slate-400 uppercase text-xs tracking-widest">Carga Masiva (Excel .xlsx)</p>
-                <input type="file" id="inputExcel" accept=".xlsx" class="mb-4 text-xs block w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
-                <button onclick="importarExcel()" class="bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl font-black w-full transition active:scale-95 text-white">SUBIR ARCHIVO</button>
+                <input type="file" id="inputExcel" accept=".xlsx" class="mb-4 text-xs block w-full text-slate-400 cursor-pointer">
+                <button onclick="importarExcel()" class="bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl font-black w-full transition active:scale-95 text-white uppercase">Subir Excel</button>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
                 <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
                     <h2 id="titulo-linea" class="text-3xl font-black text-yellow-500 italic uppercase"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition">VOLVER</button>
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-600 transition uppercase">Volver</button>
                 </div>
                 
                 <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-700 p-4 rounded-2xl">
@@ -98,27 +98,107 @@
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
-// Función para enviar el Excel al servidor
+        async function cargarStock(seccion) {
+            seccionActual = seccion;
+            document.getElementById('menu-secciones').classList.add('hidden');
+            document.getElementById('vista-stock').classList.remove('hidden');
+            document.getElementById('titulo-linea').innerText = "LÍNEA " + seccion;
+
+            const res = await fetch(`${URL_API}/stock/${seccion}`);
+            const datos = await res.json();
+            const tabla = document.getElementById('cuerpo-tabla');
+            tabla.innerHTML = '';
+            
+            datos.forEach(m => {
+                const stock = m.recepcionadas - m.vendido;
+                let colorStock = stock <= 1 ? "text-red-500 animate-pulse text-2xl" : "text-white text-xl";
+                if (stock <= 0) colorStock = "text-slate-600";
+
+                tabla.innerHTML += `
+                    <tr class="hover:bg-slate-700/50 transition border-slate-700">
+                        <td class="p-4 text-blue-400 font-mono font-bold uppercase">${m.ref}</td>
+                        <td class="p-4 text-sm uppercase">${m.descripcion}</td>
+                        <td class="p-4 text-xs font-normal uppercase">${m.color}</td>
+                        <td class="p-4 text-center solo-admin">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', -1)" class="bg-red-600/40 w-8 h-8 rounded-lg flex items-center justify-center font-black">-</button>
+                                <span class="text-green-400 w-6 text-center">${m.recepcionadas}</span>
+                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', 1)" class="bg-green-600 w-8 h-8 rounded-lg flex items-center justify-center font-black">+</button>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center solo-admin">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', -1)" class="bg-red-600/40 w-8 h-8 rounded-lg flex items-center justify-center font-black">-</button>
+                                <span class="text-orange-400 w-6 text-center">${m.vendido}</span>
+                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', 1)" class="bg-orange-600 w-8 h-8 rounded-lg flex items-center justify-center font-black">+</button>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center font-black ${colorStock}">${stock > 0 ? stock : 'AGOTADO'}</td>
+                        <td class="p-4 text-center solo-admin">
+                            <button onclick="eliminarMueble('${m._id}')" class="text-red-500 text-xl hover:scale-110 transition">🗑️</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        async function ajustar(id, valorActual, campo, cambio) {
+            const nuevoValor = Math.max(0, valorActual + cambio);
+            await fetch(`${URL_API}/stock/vender/${id}?${campo}=${nuevoValor}`, { method: 'PUT' });
+            cargarStock(seccionActual);
+        }
+
+        async function guardarMueble() {
+            const nuevo = {
+                ref: document.getElementById('f-ref').value.toUpperCase(),
+                descripcion: document.getElementById('f-desc').value.toUpperCase(),
+                color: document.getElementById('f-color').value,
+                recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
+                vendido: 0,
+                seccion: seccionActual
+            };
+            await fetch(`${URL_API}/stock/agregar`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(nuevo)
+            });
+            document.getElementById('f-ref').value = "";
+            document.getElementById('f-desc').value = "";
+            document.getElementById('f-rec').value = "";
+            cargarStock(seccionActual);
+        }
+
         async function importarExcel() {
             const fileInput = document.getElementById('inputExcel');
-            if (!fileInput.files[0]) return alert("Por favor, selecciona un archivo .xlsx primero");
-            
+            if (!fileInput.files[0]) return alert("Selecciona un archivo .xlsx");
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
-            
             try {
-                const res = await fetch(`${URL_API}/stock/importar`, { 
-                    method: 'POST', 
-                    body: formData 
-                });
+                const res = await fetch(`${URL_API}/stock/importar`, { method: 'POST', body: formData });
                 const data = await res.json();
-                if (data.msg) {
-                    alert(data.msg);
-                    location.reload(); // Recarga para ver los nuevos productos
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (e) {
-                alert("Error de conexión con el servidor");
+                alert(data.msg || "Error: " + data.error);
+                location.reload();
+            } catch (e) { alert("Error de conexión"); }
+        }
+
+        function volverAlMenu() {
+            document.getElementById('vista-stock').classList.add('hidden');
+            document.getElementById('menu-secciones').classList.remove('hidden');
+        }
+
+        async function eliminarMueble(id) {
+            if(confirm("¿Borrar definitivamente?")) {
+                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
+                cargarStock(seccionActual);
             }
         }
+
+        function filtrar() {
+            let filtro = document.getElementById('buscador').value.toUpperCase();
+            let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) {
+                filas[i].style.display = filas[i].innerText.toUpperCase().includes(filtro) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
