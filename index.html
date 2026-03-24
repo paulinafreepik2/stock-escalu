@@ -98,16 +98,27 @@
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
-        async function cargarStock(seccion) {
-            seccionActual = seccion;
-            document.getElementById('menu-secciones').classList.add('hidden');
-            document.getElementById('vista-stock').classList.remove('hidden');
-            document.getElementById('titulo-linea').innerText = "LÍNEA " + seccion;
-
-            const res = await fetch(`${URL_API}/stock/${seccion}`);
-            const datos = await res.json();
-            const tabla = document.getElementById('cuerpo-tabla');
-            tabla.innerHTML = '';
+// Función para enviar el Excel al servidor
+        async function importarExcel() {
+            const fileInput = document.getElementById('inputExcel');
+            if (!fileInput.files[0]) return alert("Por favor, selecciona un archivo .xlsx primero");
             
-            datos.forEach(m => {
-                const stock = m.recepcionadas
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const res = await fetch(`${URL_API}/stock/importar`, { 
+                    method: 'POST', 
+                    body: formData 
+                });
+                const data = await res.json();
+                if (data.msg) {
+                    alert(data.msg);
+                    location.reload(); // Recarga para ver los nuevos productos
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (e) {
+                alert("Error de conexión con el servidor");
+            }
+        }
