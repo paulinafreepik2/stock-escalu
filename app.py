@@ -2,17 +2,18 @@ from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 from bson import ObjectId
+import pandas as pd
+import io
 
 app = Flask(__name__)
 CORS(app)
 
-# Tu conexión que ya sabemos que funciona
 app.config["MONGO_URI"] = "mongodb+srv://usuario_web:FEh8oeAhmoSPFqhn@stockescalu.mikltkh.mongodb.net/ESCALU_DB?retryWrites=true&w=majority&authSource=admin"
 mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-    return "Servidor ESCALU FUNCIONANDO"
+    return "Servidor ESCALU OK"
 
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
@@ -41,6 +42,24 @@ def update_stock(id):
 def delete_product(id):
     mongo.db.stock.delete_one({"_id": ObjectId(id)})
     return jsonify({"msg": "OK"})
+
+@app.route('/stock/importar', methods=['POST'])
+def importar_excel():
+    try:
+        if 'file' not in request.files: return jsonify({"error": "No file"}), 400
+        file = request.files['file']
+        df = pd.read_excel(file)
+        # Limpieza de datos
+        df['vendido'] = df['vendido'].fillna(0).astype(int)
+        df['recepcionadas'] = df['recepcionadas'].fillna(0).astype(int)
+        df['ref'] = df['ref'].astype(str).str.upper()
+        df['seccion'] = df['seccion'].astype(str).str.upper()
+        
+        datos = df.to_dict(orient='records')
+        mongo.db.stock.insert_many(datos)
+        return jsonify({"msg": f"¡Éxito! {len(datos)} productos cargados."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
