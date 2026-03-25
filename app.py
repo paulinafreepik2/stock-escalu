@@ -54,7 +54,7 @@ def descargar_excel():
     output.seek(0)
     return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Stock_Real.xlsx')
 
-# --- RUTAS DE PEDIDOS (NUEVO) ---
+# --- RUTAS DE PEDIDOS ---
 @app.route('/pedidos', methods=['GET'])
 def get_pedidos():
     pedidos = list(mongo.db.pedidos.find())
@@ -65,8 +65,15 @@ def get_pedidos():
 def crear_pedido():
     data = request.json
     data["fecha"] = datetime.now().strftime("%d/%m/%Y")
+    if "cantidad" not in data: data["cantidad"] = 1
     mongo.db.pedidos.insert_one(data)
     return jsonify({"msg": "Pedido anotado"})
+
+@app.route('/pedidos/actualizar/<id>', methods=['PUT'])
+def actualizar_pedido(id):
+    cantidad = request.args.get('cantidad')
+    mongo.db.pedidos.update_one({"_id": ObjectId(id)}, {"$set": {"cantidad": int(cantidad)}})
+    return jsonify({"msg": "OK"})
 
 @app.route('/pedidos/eliminar/<id>', methods=['DELETE'])
 def eliminar_pedido(id):
@@ -79,9 +86,9 @@ def descargar_pedidos():
     df = pd.DataFrame(pedidos)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Pedidos_Clientes')
+        df.to_excel(writer, index=False, sheet_name='Pedidos')
     output.seek(0)
-    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Lista_Pedidos.xlsx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Pedidos_Clientes.xlsx')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
