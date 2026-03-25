@@ -95,7 +95,6 @@
     </div>
 </div>
 
-<!-- SCRIPT -->
 <script>
 let seccionActual = "";
 let esAdmin = false;
@@ -185,8 +184,14 @@ async function ventanaStock(id, tipo, signo) {
     num = parseInt(num);
     if (isNaN(num) || num <= 0) { alert("Introduce un número válido"); return; }
     const total = num * signo;
-    await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
-    cargarStock(seccionActual);
+    try {
+        const res = await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
+        if (!res.ok) throw new Error("Error al actualizar stock");
+        cargarStock(seccionActual);
+    } catch (error) {
+        console.error(error);
+        alert("Error al actualizar stock. Revisa la consola.");
+    }
 }
 
 /* ================= MANUAL +/- VENDIDAS ================= */
