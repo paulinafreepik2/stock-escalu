@@ -6,7 +6,9 @@
     <title>STOCK IMMINENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Reglas de seguridad: OCULTAR según el modo */
         .modo-cliente .solo-admin { display: none !important; }
+        .modo-cliente .col-pedido { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans text-sm">
@@ -14,7 +16,7 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
             <h1 class="text-4xl font-black mb-6 italic tracking-tighter">IMMINENT</h1>
-            <input id="input-pass" type="text" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl">
+            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
 
@@ -24,12 +26,13 @@
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-xs"></p>
             </header>
             
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-6 rounded-2xl font-bold shadow-lg text-lg">🌲 DAKOTA</button>
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
-                <button onclick="verPedidos()" class="bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg">📦 ELIAS</button>
+                <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
             </div>
 
             <div class="solo-admin p-6 bg-slate-800 rounded-3xl border border-slate-700 max-w-sm mx-auto shadow-xl">
@@ -46,22 +49,22 @@
             <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4">
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar producto..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
                     <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
                 </div>
                 
                 <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-2 bg-slate-700 p-4 rounded-2xl mb-4 border border-slate-500">
-                    <input id="f-ref" placeholder="REFERENCIA" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
-                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
+                    <input id="f-ref" placeholder="REF" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
+                    <input id="f-desc" placeholder="DESC" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
                     <select id="f-color" class="p-2 rounded-lg text-black font-bold text-sm">
                         <option>CAMBRIAN</option><option>BLANCO</option><option>TIBET</option>
                         <option>ROBLE</option><option>PIZARRA</option><option>GRIS</option>
                         <option>ROBLE/RAYADO</option><option>CAMBRIAN/BLANCO</option>
                         <option>CAMBRIAN/PIZARRA</option><option>BLANCO/PIZARRA</option>
-                        <option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
+                        <option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option><option>OTROS</option>
                     </select>
                     <input id="f-rec" type="number" placeholder="CANT" class="p-2 rounded-lg text-black font-bold text-sm">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-lg p-2 hover:bg-green-500 uppercase text-xs">Añadir Mueble</button>
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-lg p-2 uppercase text-xs">Añadir</button>
                 </div>
             </div>
 
@@ -73,7 +76,7 @@
                                 <th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4">COLOR</th>
                                 <th class="p-4 text-center solo-admin">RECIB</th><th class="p-4 text-center solo-admin">VEND</th>
                                 <th class="p-4 text-center text-white">STOCK</th>
-                                <th class="p-4 text-center">ANOTAR PEDIDO</th>
+                                <th class="p-4 text-center col-pedido">PEDIR</th>
                                 <th class="p-4 text-center solo-admin">🗑️</th>
                             </tr>
                         </thead>
@@ -88,7 +91,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-black text-emerald-400 italic uppercase">📝 LISTA PEDIDOS</h2>
                     <div class="flex gap-2">
-                        <button onclick="descargarExcelPedidos()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold text-xs uppercase text-white">📊 Descargar Excel</button>
+                        <button onclick="descargarExcelPedidos()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold text-xs uppercase text-white">📊 Excel Pedidos</button>
                         <button onclick="volverAlMenu()" class="bg-slate-700 px-4 py-2 rounded-xl font-bold text-xs">VOLVER</button>
                     </div>
                 </div>
@@ -98,7 +101,7 @@
                             <tr>
                                 <th class="p-4">CLIENTE</th><th class="p-4">REF</th><th class="p-4">MUEBLE</th>
                                 <th class="p-4 text-center">CANT</th><th class="p-4">FECHA</th>
-                                <th class="p-4 text-center">LISTO</th>
+                                <th class="p-4 text-center">OK</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
@@ -114,8 +117,16 @@
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { esAdmin = true; entrar("ADMINISTRADOR"); } 
-            else if (pass === 'INVITADO') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); } 
+            if (pass === '12345CUCA') { 
+                esAdmin = true; 
+                document.body.classList.remove('modo-cliente');
+                entrar("ADMINISTRADOR"); 
+            } 
+            else if (pass === 'INVITADO') { 
+                esAdmin = false; 
+                document.body.classList.add('modo-cliente'); 
+                entrar("INVITADO"); 
+            } 
             else { alert("❌ Clave incorrecta"); }
         }
 
@@ -157,8 +168,8 @@
                             </div>
                         </td>
                         <td class="p-4 text-center text-lg ${colorStock}">${stock}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] font-black">🛒 PEDIDO</button>
+                        <td class="p-4 text-center col-pedido">
+                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase">🛒 Pedido</button>
                         </td>
                         <td class="p-4 text-center solo-admin">
                             <button onclick="eliminarMueble('${m._id}')">🗑️</button>
@@ -168,9 +179,10 @@
         }
 
         async function ajustar(id, valorActual, campo, cambio) {
+            if (!esAdmin) return;
             let nuevoValor;
             if (campo === 'recepcionadas' && cambio === 1) {
-                let cantidad = prompt("¿Cuántas unidades han llegado?", "1");
+                let cantidad = prompt("¿Unidades recibidas?", "1");
                 if (!cantidad) return;
                 nuevoValor = valorActual + parseInt(cantidad);
             } else { nuevoValor = Math.max(0, valorActual + cambio); }
@@ -178,35 +190,19 @@
             cargarStock(seccionActual);
         }
 
-        async function guardarMueble() {
-            const nuevo = {
-                ref: document.getElementById('f-ref').value.toUpperCase(),
-                descripcion: document.getElementById('f-desc').value.toUpperCase(),
-                color: document.getElementById('f-color').value,
-                recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
-                vendido: 0,
-                seccion: seccionActual
-            };
-            if(!nuevo.ref) return alert("Falta REF");
-            await fetch(`${URL_API}/stock/agregar`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(nuevo)
-            });
-            cargarStock(seccionActual);
-            document.getElementById('f-ref').value = ""; document.getElementById('f-desc').value = ""; document.getElementById('f-rec').value = "";
-        }
-
         async function anotarPedido(ref, desc, color) {
+            if (!esAdmin) return;
             const cliente = prompt("¿Nombre del Cliente?");
             if (!cliente) return;
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente, ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("Pedido anotado ✅");
+            alert("Pedido anotado para " + cliente);
         }
 
         async function verPedidos() {
+            if (!esAdmin) return;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
             const res = await fetch(`${URL_API}/pedidos`);
@@ -241,6 +237,24 @@
 
         async function borrarPedido(id) {
             if(confirm("¿Pedido finalizado?")) { await fetch(`${URL_API}/pedidos/eliminar/${id}`, { method: 'DELETE' }); verPedidos(); }
+        }
+
+        async function guardarMueble() {
+            const nuevo = {
+                ref: document.getElementById('f-ref').value.toUpperCase(),
+                descripcion: document.getElementById('f-desc').value.toUpperCase(),
+                color: document.getElementById('f-color').value,
+                recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
+                vendido: 0,
+                seccion: seccionActual
+            };
+            if(!nuevo.ref) return alert("Falta REF");
+            await fetch(`${URL_API}/stock/agregar`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(nuevo)
+            });
+            cargarStock(seccionActual);
+            document.getElementById('f-ref').value = ""; document.getElementById('f-desc').value = ""; document.getElementById('f-rec').value = "";
         }
 
         async function importarExcel() {
