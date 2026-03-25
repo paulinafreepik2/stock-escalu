@@ -117,15 +117,18 @@
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
+            
+            // SI ES ADMIN (TÚ)
             if (pass === '12345CUCA') { 
                 esAdmin = true; 
                 document.body.classList.remove('modo-cliente');
                 entrar("ADMINISTRADOR"); 
             } 
-            else if (pass === 'INVITADO') { 
+            // SI ES CLIENTE O SOFAS (VENDEDORES)
+            else if (pass === 'INVITADO' || pass === 'SOFAS') { 
                 esAdmin = false; 
                 document.body.classList.add('modo-cliente'); 
-                entrar("INVITADO"); 
+                entrar(pass); 
             } 
             else { alert("❌ Clave incorrecta"); }
         }
