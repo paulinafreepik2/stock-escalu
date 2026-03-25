@@ -143,14 +143,19 @@
 async function ajustar(id, valorActual, campo, cambio) {
             let nuevoValor;
             
-            if (cambio === 1) {
-                // Si le das al +, preguntamos cuántas han llegado o se han vendido
-                let cantidad = prompt("¿Cuántas unidades quieres añadir?", "1");
-                if (cantidad === null || cantidad === "") return; // Si cancelas, no hace nada
+            // 1. SI SON RECEPCIONADAS (BOTÓN VERDE) Y SUMAMOS (+)
+            if (campo === 'recepcionadas' && cambio === 1) {
+                let cantidad = prompt("¿Cuántas unidades han llegado?", "1");
+                if (cantidad === null || cantidad === "") return;
                 nuevoValor = valorActual + parseInt(cantidad);
-            } else {
-                // Si le das al -, resta de 1 en 1 para corregir errores rápido
-                nuevoValor = Math.max(0, valorActual - 1);
+            } 
+            // 2. PARA TODO LO DEMÁS (VENDIDOS O RESTAR), DE 1 EN 1
+            else {
+                if (cambio === 1) {
+                    nuevoValor = valorActual + 1; // Suma 1 en vendido
+                } else {
+                    nuevoValor = Math.max(0, valorActual - 1); // Resta 1 en cualquier campo
+                }
             }
 
             await fetch(`${URL_API}/stock/vender/${id}?${campo}=${nuevoValor}`, { method: 'PUT' });
