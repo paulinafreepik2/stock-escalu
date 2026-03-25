@@ -1,214 +1,219 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMMINENT STOCK PRO</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<style>
-.modo-cliente .solo-admin { display: none !important; }
-.modo-cliente .col-pedido { display: none !important; }
-
-.tag { padding:4px 10px;border-radius:6px;font-size:11px;font-weight:800 }
-
-.btn-stock {
-    width:32px;height:32px;border-radius:8px;
-    font-weight:bold;font-size:20px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMMINENT STOCK - FINAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .modo-cliente .solo-admin { display: none !important; }
+        .badge-cambrian { background-color: #926239; color: white; }
+        .badge-blanco { background-color: #ffffff; color: #000; font-weight: bold; border: 1px solid #ccc; }
+        .badge-tibet { background-color: #57534e; color: white; }
+        .badge-roble { background-color: #b38b59; color: white; }
+        .badge-mix { background: linear-gradient(135deg, #926239 50%, #ffffff 50%); color: #000; border: 1px solid #666; }
+        .badge-pizarra { background-color: #334155; color: white; }
+        .tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; text-transform: uppercase; font-weight: 800; display: inline-block; }
+        .btn-stock { width: 36px; height: 36px; border-radius: 10px; font-weight: bold; font-size: 20px; color: white; transition: active 0.1s; }
+        .btn-stock:active { transform: scale(0.9); }
+    </style>
 </head>
-
 <body class="bg-slate-900 text-white font-sans text-sm">
+    <div class="max-w-[1400px] mx-auto p-2 md:p-4">
+        
+        <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
+            <h1 class="text-4xl font-black mb-6 italic tracking-tighter">IMMINENT</h1>
+            <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl font-bold outline-none">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg">Entrar</button>
+        </div>
 
-<div class="max-w-[1400px] mx-auto p-4">
+        <div id="menu-secciones" class="hidden text-center">
+            <header class="mb-10 text-center">
+                <h1 class="text-7xl font-black italic tracking-tighter">IMMINENT</h1>
+                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase"></p>
+            </header>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10 px-2">
+                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌙 NOCTURNO</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🛋️ SOFÁS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg hover:brightness-110">📦 ELIAS</button>
+                <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg hover:brightness-110">📝 PEDIDOS</button>
+            </div>
+        </div>
 
-<!-- LOGIN -->
-<div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center">
-    <h1 class="text-4xl font-black mb-6">IMMINENT</h1>
-    <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-900 mb-4 text-center">
-    <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold">Entrar</button>
-</div>
+        <div id="vista-stock" class="hidden">
+            <div class="solo-admin bg-slate-800 p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
+                <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ NUEVO PRODUCTO EN <span id="nombre-linea-form"></span></h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <input id="new-ref" placeholder="REF" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white uppercase font-bold outline-none">
+                    <input id="new-desc" placeholder="DESCRIPCIÓN" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white uppercase outline-none">
+                    <select id="new-color" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white font-bold outline-none">
+                        <option value="CAMBRIAN">CAMBRIAN</option>
+                        <option value="BLANCO">BLANCO</option>
+                        <option value="TIBET">TIBET</option>
+                        <option value="ROBLE">ROBLE</option>
+                        <option value="ROBLE/BLANCO">ROBLE/BLANCO</option>
+                        <option value="CAMBRIAN/BLANCO">CAMBRIAN/BLANCO</option>
+                        <option value="CAMBRIAN/PIZARRA">CAMBRIAN/PIZARRA</option>
+                        <option value="TIBET/PIZARRA">TIBET/PIZARRA</option>
+                        <option value="BLANCO/PIZARRA">BLANCO/PIZARRA</option>
+                        <option value="ROBLE/RAYADO">ROBLE/RAYADO</option>
+                    </select>
+                    <input id="new-stock-ini" type="number" placeholder="STOCK INICIAL" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white outline-none">
+                    <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">Guardar</button>
+                </div>
+            </div>
 
-<!-- MENU -->
-<div id="menu-secciones" class="hidden text-center">
-    <h1 class="text-6xl font-black mb-6">IMMINENT</h1>
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4 flex justify-between items-center gap-4">
+                <h2 id="titulo-linea" class="text-3xl font-black text-yellow-500 italic uppercase ml-2"></h2>
+                <input id="buscador" onkeyup="filtrar()" placeholder="🔎 BUSCAR..." class="flex-grow max-w-2xl p-4 rounded-2xl bg-slate-900 border border-slate-600 text-white font-bold outline-none">
+                <button onclick="volverAlMenu()" class="bg-slate-700 px-8 py-4 rounded-2xl font-bold uppercase text-xs">VOLVER</button>
+            </div>
 
-    <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-xl">SOFAS</button>
-    <button onclick="verPedidos()" class="solo-admin bg-green-600 p-6 rounded-xl">PEDIDOS</button>
-</div>
+            <div class="bg-slate-800 rounded-[2rem] border border-slate-700 overflow-hidden shadow-2xl">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-700/50 text-slate-400 text-xs uppercase tracking-tighter">
+                        <tr>
+                            <th class="p-5">REF</th>
+                            <th class="p-5">DESCRIPCIÓN</th>
+                            <th class="p-5">COLOR</th>
+                            <th class="p-5 text-center">RECIBIDAS (POP-UP)</th>
+                            <th class="p-5 text-center">VENDIDAS (+/- 1)</th>
+                            <th class="p-5 text-center text-yellow-500 font-black">STOCK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
 
-<!-- STOCK -->
-<div id="vista-stock" class="hidden">
+        <div id="vista-pedidos" class="hidden">
+            <div class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-4xl font-black text-emerald-400 italic">📝 PEDIDOS</h2>
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs">VOLVER</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-700/50 text-slate-400 text-xs uppercase">
+                            <tr><th class="p-5">CLIENTE</th><th class="p-5">MUEBLE</th><th class="p-5 text-center">CANT</th><th class="p-5 text-center">OK</th></tr>
+                        </thead>
+                        <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2 id="titulo-linea" class="text-3xl mb-4"></h2>
+    <script>
+        let seccionActual = ""; let esAdmin = false;
+        const URL_API = "https://stock-escalu-app.onrender.com";
 
-<input id="buscador" onkeyup="filtrar()" placeholder="BUSCAR..." class="w-full p-3 mb-4 bg-slate-800">
+        function getClaseColor(color) {
+            if (!color) return 'bg-slate-700';
+            const c = color.toUpperCase();
+            if (c === 'CAMBRIAN') return 'badge-cambrian';
+            if (c === 'BLANCO') return 'badge-blanco';
+            if (c === 'TIBET') return 'badge-tibet';
+            if (c === 'ROBLE') return 'badge-roble';
+            if (c.includes('PIZARRA')) return 'badge-pizarra';
+            if (c.includes('/')) return 'badge-mix';
+            return 'bg-slate-700';
+        }
 
-<table class="w-full">
-<thead>
-<tr>
-<th>REF</th>
-<th>DESC</th>
-<th>COLOR</th>
-<th>REC</th>
-<th>VEN</th>
-<th>STOCK</th>
-</tr>
-</thead>
+        function verificar() {
+            const pass = document.getElementById('input-pass').value.trim().toUpperCase();
+            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMIN"); }
+            else { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
+        }
 
-<tbody id="cuerpo-tabla"></tbody>
-</table>
+        function entrar(txt) {
+            document.getElementById('txt-bienvenida').innerText = txt;
+            document.getElementById('pantalla-login').classList.add('hidden');
+            document.getElementById('menu-secciones').classList.remove('hidden');
+        }
 
-<button onclick="volverAlMenu()" class="mt-4 bg-slate-700 p-3 rounded">VOLVER</button>
+        async function cargarStock(seccion) {
+            seccionActual = seccion;
+            document.getElementById('menu-secciones').classList.add('hidden');
+            document.getElementById('vista-stock').classList.remove('hidden');
+            document.getElementById('titulo-linea').innerText = seccion;
+            document.getElementById('nombre-linea-form').innerText = seccion;
+            
+            const res = await fetch(`${URL_API}/stock/${seccion}`);
+            const datos = await res.json();
+            const tabla = document.getElementById('cuerpo-tabla');
+            tabla.innerHTML = '';
+            
+            datos.forEach(m => {
+                const actual = m.recepcionadas - m.vendido;
+                const claseCol = getClaseColor(m.color);
+                tabla.innerHTML += `
+                <tr class="font-bold border-slate-700">
+                    <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
+                    <td class="p-5 uppercase text-slate-200 text-sm">${m.descripcion}</td>
+                    <td class="p-5"><span class="tag ${claseCol}">${m.color}</span></td>
+                    <td class="p-5">
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="accionPopUp('${m._id}', 'rec', -1)" class="solo-admin btn-stock bg-red-900 border border-red-700">-</button>
+                            <span class="w-10 text-center text-xl font-black">${m.recepcionadas}</span>
+                            <button onclick="accionPopUp('${m._id}', 'rec', 1)" class="solo-admin btn-stock bg-emerald-700 border border-emerald-500">+</button>
+                        </div>
+                    </td>
+                    <td class="p-5">
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="accionDirecta('${m._id}', 'ven', -1)" class="solo-admin btn-stock bg-red-900 border border-red-700">-</button>
+                            <span class="w-10 text-center text-xl font-black">${m.vendido}</span>
+                            <button onclick="accionDirecta('${m._id}', 'ven', 1)" class="solo-admin btn-stock bg-emerald-700 border border-emerald-500">+</button>
+                        </div>
+                    </td>
+                    <td class="p-5 text-center text-3xl text-yellow-500 font-black">${actual}</td>
+                </tr>`;
+            });
+        }
 
-</div>
+        // --- ESTAS SON LAS FUNCIONES QUE MANDAN ---
+        async function accionPopUp(id, tipo, signo) {
+            const num = prompt("¿CUÁNTAS UNIDADES?");
+            if (num != null && num != "" && !isNaN(num)) {
+                const cantidadFinal = parseInt(num) * signo;
+                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${cantidadFinal}`, { method: 'PUT' });
+                cargarStock(seccionActual);
+            }
+        }
 
-</div>
+        async function accionDirecta(id, tipo, valor) {
+            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
+            cargarStock(seccionActual);
+        }
 
-<script>
+        async function guardarNuevoProducto() {
+            const ref = document.getElementById('new-ref').value.toUpperCase();
+            const desc = document.getElementById('new-desc').value.toUpperCase();
+            const col = document.getElementById('new-color').value;
+            const stock = document.getElementById('new-stock-ini').value || 0;
+            if(!ref || !desc) return alert("FALTA REF O DESCRIPCION");
+            await fetch(`${URL_API}/stock/agregar`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ seccion: seccionActual, ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
+            });
+            alert("GUARDADO"); cargarStock(seccionActual);
+            document.getElementById('new-ref').value = ''; document.getElementById('new-desc').value = '';
+        }
 
-let seccionActual = "";
-let esAdmin = false;
+        function volverAlMenu() {
+            document.getElementById('vista-stock').classList.add('hidden');
+            document.getElementById('vista-pedidos').classList.add('hidden');
+            document.getElementById('menu-secciones').classList.remove('hidden');
+        }
 
-const URL_API = "https://stock-escalu-app.onrender.com";
-
-/* ================= SAFE FETCH ================= */
-
-async function safeFetch(url, options = {}) {
-    try {
-        const res = await fetch(url, options);
-        if (!res.ok) throw new Error("Error servidor");
-        return await res.json().catch(()=>({}));
-    } catch (e) {
-        alert("Error conexión servidor");
-        console.error(e);
-        return null;
-    }
-}
-
-/* ================= LOGIN ================= */
-
-function verificar(){
-    const pass = document.getElementById('input-pass').value;
-
-    if(pass === "12345CUCA"){
-        esAdmin = true;
-        entrar();
-    } else {
-        document.body.classList.add('modo-cliente');
-        entrar();
-    }
-}
-
-function entrar(){
-    document.getElementById('pantalla-login').classList.add('hidden');
-    document.getElementById('menu-secciones').classList.remove('hidden');
-}
-
-/* ================= STOCK ================= */
-
-function getClaseColor(c){
-    if(!c) return "";
-    c = c.toUpperCase();
-    if(c.includes("BLANCO")) return "bg-white text-black";
-    if(c.includes("CAMBRIAN")) return "bg-yellow-700";
-    return "bg-slate-700";
-}
-
-async function cargarStock(seccion){
-
-    seccionActual = seccion;
-
-    document.getElementById('menu-secciones').classList.add('hidden');
-    document.getElementById('vista-stock').classList.remove('hidden');
-    document.getElementById('titulo-linea').innerText = seccion;
-
-    const datos = await safeFetch(`${URL_API}/stock/${seccion}`);
-    if(!datos) return;
-
-    const tabla = document.getElementById('cuerpo-tabla');
-
-    let html = "";
-
-    datos.forEach(m => {
-
-        const stock = m.recepcionadas - m.vendido;
-
-        html += `
-        <tr>
-            <td>${m.ref}</td>
-            <td>${m.descripcion}</td>
-            <td><span class="tag ${getClaseColor(m.color)}">${m.color}</span></td>
-
-            <td>
-                <button onclick="manualStock('${m._id}','rec',-1)">-</button>
-                <span>${m.recepcionadas}</span>
-                <button onclick="manualStock('${m._id}','rec',1)">+</button>
-            </td>
-
-            <td>
-                <button onclick="manualStock('${m._id}','ven',-1)">-</button>
-                <span>${m.vendido}</span>
-                <button onclick="manualStock('${m._id}','ven',1)">+</button>
-            </td>
-
-            <td>${stock}</td>
-        </tr>
-        `;
-    });
-
-    tabla.innerHTML = html;
-}
-
-/* ================= UPDATE SIN RECARGAR ================= */
-
-async function manualStock(id, tipo, valor){
-
-    const ok = await safeFetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, {method:'PUT'});
-    if(!ok) return;
-
-    const fila = document.querySelector(`button[onclick*="${id}"]`).closest('tr');
-
-    const spans = fila.querySelectorAll('span');
-
-    let rec = parseInt(spans[0].innerText);
-    let ven = parseInt(spans[1].innerText);
-
-    if(tipo==="rec") rec += valor;
-    if(tipo==="ven") ven += valor;
-
-    spans[0].innerText = rec;
-    spans[1].innerText = ven;
-
-    fila.children[5].innerText = rec - ven;
-}
-
-/* ================= PEDIDOS ================= */
-
-function verPedidos(){
-    alert("Aquí irían pedidos (no modificado)");
-}
-
-/* ================= OTROS ================= */
-
-function volverAlMenu(){
-    document.getElementById('vista-stock').classList.add('hidden');
-    document.getElementById('menu-secciones').classList.remove('hidden');
-}
-
-function filtrar(){
-    let f = document.getElementById('buscador').value.toUpperCase();
-    let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
-
-    for (let i = 0; i < filas.length; i++) {
-        filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none";
-    }
-}
-
-</script>
-
+        function filtrar() {
+            let f = document.getElementById('buscador').value.toUpperCase();
+            let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; }
+        }
+    </script>
 </body>
 </html>
