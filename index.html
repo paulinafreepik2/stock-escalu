@@ -24,74 +24,57 @@
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-xs"></p>
             </header>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-10">
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-6 rounded-2xl font-bold shadow-lg text-lg">🌲 DAKOTA</button>
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
+                <button onclick="verPedidos()" class="bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-4 border-white">📝 PEDIDOS</button>
             </div>
 
             <div class="solo-admin p-6 bg-slate-800 rounded-3xl border border-slate-700 max-w-sm mx-auto shadow-xl">
-                <p class="mb-3 font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gestión de Inventario (.xlsx)</p>
-                <input type="file" id="inputExcel" accept=".xlsx" class="mb-4 text-xs block w-full text-slate-400">
-                
+                <p class="mb-3 font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gestión de Stock (.xlsx)</p>
                 <div class="flex flex-col gap-3">
-                    <button onclick="importarExcel()" class="bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl font-black w-full transition active:scale-95 text-white uppercase flex items-center justify-center gap-2">
-                        📥 Subir/Importar Excel
-                    </button>
-                    
-                    <button onclick="descargarExcel()" class="bg-blue-700 hover:bg-blue-600 px-4 py-3 rounded-xl font-black w-full transition active:scale-95 text-white uppercase flex items-center justify-center gap-2">
-                        📊 Descargar Inventario Real
-                    </button>
+                    <button onclick="descargarExcel()" class="bg-blue-700 hover:bg-blue-600 px-4 py-3 rounded-xl font-black w-full text-white uppercase flex items-center justify-center gap-2">📊 Descargar Stock</button>
                 </div>
             </div>
         </div>
 
         <div id="vista-stock" class="hidden">
             <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4">
-                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+                <div class="flex justify-between items-center mb-4">
                     <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
-                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar por nombre o ref..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs text-white">VOLVER</button>
                 </div>
-                
-                <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-2 bg-slate-700 p-4 rounded-2xl">
-                    <input id="f-ref" placeholder="REF" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
-                    <input id="f-desc" placeholder="DESCRIPCIÓN" class="p-2 rounded-lg text-black font-bold uppercase text-sm">
-                    <select id="f-color" class="p-2 rounded-lg text-black font-bold text-sm">
-                        <option>CAMBRIAN</option>
-                        <option>BLANCO</option>
-                        <option>TIBET</option>
-                        <option>ROBLE</option>
-                        <option>PIZARRA</option>
-                        <option>GRIS</option>
-                        <option>ROBLE/RAYADO</option>
-                        <option>CAMBRIAN/BLANCO</option>
-                        <option>CAMBRIAN/PIZARRA</option>
-                        <option>BLANCO/PIZARRA</option>
-                        <option>TIBET/PIZARRA</option>
-                        <option>ROBLE/BLANCO</option>
-                    </select>
-                    <input id="f-rec" type="number" placeholder="CANT" class="p-2 rounded-lg text-black font-bold text-sm">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-lg p-2 hover:bg-green-500 uppercase text-xs">Añadir</button>
+                <div id="tabla-stock-container">
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="w-full p-3 mb-4 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left bg-slate-800">
+                            <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
+                                <tr><th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4">COLOR</th><th class="p-4 text-center">STOCK</th><th class="p-4 text-center">PEDIR</th></tr>
+                            </thead>
+                            <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl">
-                <div class="overflow-x-auto"> 
-                    <table class="w-full text-left min-w-[700px]">
+        <div id="vista-pedidos" class="hidden">
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-black text-emerald-400 italic uppercase">LISTA DE PEDIDOS</h2>
+                    <div class="flex gap-2">
+                        <button onclick="descargarExcelPedidos()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold text-xs">📊 DESCARGAR EXCEL</button>
+                        <button onclick="volverAlMenu()" class="bg-slate-700 px-4 py-2 rounded-xl font-bold text-xs text-white">VOLVER</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
                         <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
-                            <tr>
-                                <th class="p-4">REF</th>
-                                <th class="p-4">DESCRIPCIÓN</th>
-                                <th class="p-4">COLOR</th>
-                                <th class="p-4 text-center solo-admin">RECIBIDAS</th>
-                                <th class="p-4 text-center solo-admin">VENDIDO</th>
-                                <th class="p-4 text-center text-white">STOCK</th>
-                                <th class="p-4 text-center solo-admin">BORRAR</th>
-                            </tr>
+                            <tr><th class="p-4">CLIENTE</th><th class="p-4">REF</th><th class="p-4">MUEBLE</th><th class="p-4">FECHA</th><th class="p-4 text-center">ACCION</th></tr>
                         </thead>
-                        <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
+                        <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
                     </table>
                 </div>
             </div>
@@ -105,11 +88,9 @@
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') {
-                esAdmin = true; entrar("ADMINISTRADOR");
-            } else if (pass === 'INVITADO') {
-                esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO");
-            } else { alert("❌ Clave incorrecta"); }
+            if (pass === '12345CUCA') { esAdmin = true; entrar("ADMINISTRADOR"); } 
+            else if (pass === 'INVITADO') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); } 
+            else { alert("❌ Clave incorrecta"); }
         }
 
         function entrar(txt) {
@@ -123,114 +104,71 @@
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = seccion;
-
             const res = await fetch(`${URL_API}/stock/${seccion}`);
             const datos = await res.json();
             const tabla = document.getElementById('cuerpo-tabla');
             tabla.innerHTML = '';
-            
             datos.forEach(m => {
                 const stock = m.recepcionadas - m.vendido;
-                let colorStock = stock <= 1 ? "text-red-500 font-black animate-pulse" : "text-white";
-                
                 tabla.innerHTML += `
-                    <tr class="border-slate-700 font-bold text-xs">
-                        <td class="p-4 text-blue-400 uppercase font-mono">${m.ref}</td>
+                    <tr class="font-bold text-xs">
+                        <td class="p-4 text-blue-400 font-mono">${m.ref}</td>
                         <td class="p-4 uppercase">${m.descripcion}</td>
                         <td class="p-4 uppercase text-slate-400">${m.color}</td>
-                        <td class="p-4 text-center solo-admin">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', -1)" class="bg-red-900/40 w-7 h-7 rounded text-lg">-</button>
-                                <span class="text-green-400 w-6">${m.recepcionadas}</span>
-                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', 1)" class="bg-green-600 w-7 h-7 rounded text-lg">+</button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center solo-admin">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', -1)" class="bg-red-900/40 w-7 h-7 rounded text-lg">-</button>
-                                <span class="text-orange-400 w-6">${m.vendido}</span>
-                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', 1)" class="bg-orange-600 w-7 h-7 rounded text-lg">+</button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center text-lg ${colorStock}">${stock}</td>
-                        <td class="p-4 text-center solo-admin">
-                            <button onclick="eliminarMueble('${m._id}')" class="hover:scale-125 transition">🗑️</button>
+                        <td class="p-4 text-center text-lg">${stock}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[10px]">🛒 ANOTAR PEDIDO</button>
                         </td>
                     </tr>`;
             });
         }
 
-        async function ajustar(id, valorActual, campo, cambio) {
-            let nuevoValor;
-            if (campo === 'recepcionadas' && cambio === 1) {
-                let cantidad = prompt("¿Cuántas unidades han llegado?", "1");
-                if (cantidad === null || cantidad === "") return;
-                nuevoValor = valorActual + parseInt(cantidad);
-            } else {
-                if (cambio === 1) {
-                    nuevoValor = valorActual + 1;
-                } else {
-                    nuevoValor = Math.max(0, valorActual - 1);
-                }
-            }
-            await fetch(`${URL_API}/stock/vender/${id}?${campo}=${nuevoValor}`, { method: 'PUT' });
-            cargarStock(seccionActual);
-        }
-
-        async function guardarMueble() {
-            const nuevo = {
-                ref: document.getElementById('f-ref').value.toUpperCase(),
-                descripcion: document.getElementById('f-desc').value.toUpperCase(),
-                color: document.getElementById('f-color').value,
-                recepcionadas: parseInt(document.getElementById('f-rec').value) || 0,
-                vendido: 0,
-                seccion: seccionActual
-            };
-            if(!nuevo.ref) return alert("Pon una referencia");
-            await fetch(`${URL_API}/stock/agregar`, {
+        async function anotarPedido(ref, desc, color) {
+            const cliente = prompt("¿Nombre del Cliente?");
+            if (!cliente) return;
+            await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(nuevo)
+                body: JSON.stringify({ cliente, ref, descripcion: desc, color })
             });
-            cargarStock(seccionActual);
-            document.getElementById('f-ref').value = "";
-            document.getElementById('f-desc').value = "";
-            document.getElementById('f-rec').value = "";
+            alert("Pedido anotado en la lista 📝");
         }
 
-        async function importarExcel() {
-            const fileInput = document.getElementById('inputExcel');
-            if (!fileInput.files[0]) return alert("Selecciona un .xlsx");
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            try {
-                const res = await fetch(`${URL_API}/stock/importar`, { method: 'POST', body: formData });
-                const data = await res.json();
-                alert(data.msg || "Error");
-                location.reload();
-            } catch (e) { alert("Error al subir"); }
+        async function verPedidos() {
+            document.getElementById('menu-secciones').classList.add('hidden');
+            document.getElementById('vista-pedidos').classList.remove('hidden');
+            const res = await fetch(`${URL_API}/pedidos`);
+            const datos = await res.json();
+            const tabla = document.getElementById('cuerpo-pedidos');
+            tabla.innerHTML = '';
+            datos.forEach(p => {
+                tabla.innerHTML += `
+                    <tr class="font-bold text-xs text-white">
+                        <td class="p-4 text-emerald-400 uppercase">${p.cliente}</td>
+                        <td class="p-4 uppercase font-mono">${p.ref}</td>
+                        <td class="p-4 uppercase">${p.descripcion} (${p.color})</td>
+                        <td class="p-4 text-slate-500">${p.fecha}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="borrarPedido('${p._id}')" class="text-lg">✅</button>
+                        </td>
+                    </tr>`;
+            });
         }
 
-        async function descargarExcel() {
-            try {
-                window.location.href = `${URL_API}/stock/descargar`;
-            } catch (e) {
-                alert("Error al descargar el archivo");
+        async function borrarPedido(id) {
+            if (confirm("¿Pedido entregado/completado?")) {
+                await fetch(`${URL_API}/pedidos/eliminar/${id}`, { method: 'DELETE' });
+                verPedidos();
             }
         }
 
+        function descargarExcel() { window.location.href = `${URL_API}/stock/descargar`; }
+        function descargarExcelPedidos() { window.location.href = `${URL_API}/pedidos/descargar`; }
         function volverAlMenu() {
             document.getElementById('vista-stock').classList.add('hidden');
+            document.getElementById('vista-pedidos').classList.add('hidden');
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
-
-        async function eliminarMueble(id) {
-            if(confirm("¿Seguro que quieres borrar este artículo?")) {
-                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
-                cargarStock(seccionActual);
-            }
-        }
-
         function filtrar() {
             let filtro = document.getElementById('buscador').value.toUpperCase();
             let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
