@@ -36,8 +36,8 @@
                 <p class="mb-3 font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gestión de Inventario (.xlsx)</p>
                 <input type="file" id="inputExcel" accept=".xlsx" class="mb-4 text-xs block w-full text-slate-400">
                 <div class="flex flex-col gap-2">
-                    <button onclick="importarExcel()" class="bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl font-black w-full text-white uppercase text-xs">📥 Subir/Actualizar Excel</button>
-                    <button onclick="descargarExcel()" class="bg-blue-700 hover:bg-blue-600 px-4 py-3 rounded-xl font-black w-full text-white uppercase text-xs">📊 Descargar Stock Completo</button>
+                    <button onclick="importarExcel()" class="bg-green-700 hover:bg-green-600 px-4 py-3 rounded-xl font-black w-full text-white uppercase text-xs">📥 Subir Excel</button>
+                    <button onclick="descargarExcel()" class="bg-blue-700 hover:bg-blue-600 px-4 py-3 rounded-xl font-black w-full text-white uppercase text-xs">📊 Descargar Stock</button>
                 </div>
             </div>
         </div>
@@ -60,8 +60,8 @@
                         <option>CAMBRIAN/PIZARRA</option><option>BLANCO/PIZARRA</option>
                         <option>TIBET/PIZARRA</option><option>ROBLE/BLANCO</option>
                     </select>
-                    <input id="f-rec" type="number" placeholder="STOCK INICIAL" class="p-2 rounded-lg text-black font-bold text-sm">
-                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-lg p-2 hover:bg-green-500 uppercase text-xs">Añadir a la lista</button>
+                    <input id="f-rec" type="number" placeholder="CANT" class="p-2 rounded-lg text-black font-bold text-sm">
+                    <button onclick="guardarMueble()" class="bg-green-600 text-white font-black rounded-lg p-2 hover:bg-green-500 uppercase text-xs">Añadir Mueble</button>
                 </div>
             </div>
 
@@ -70,12 +70,11 @@
                     <table class="w-full text-left min-w-[800px]">
                         <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
                             <tr>
-                                <th class="p-4">REF</th><th class="p-4">DESCRIPCIÓN</th><th class="p-4">COLOR</th>
-                                <th class="p-4 text-center solo-admin">RECIBIDAS</th>
-                                <th class="p-4 text-center solo-admin">VENDIDO</th>
+                                <th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4">COLOR</th>
+                                <th class="p-4 text-center solo-admin">RECIB</th><th class="p-4 text-center solo-admin">VEND</th>
                                 <th class="p-4 text-center text-white">STOCK</th>
                                 <th class="p-4 text-center">ANOTAR PEDIDO</th>
-                                <th class="p-4 text-center solo-admin">BORRAR</th>
+                                <th class="p-4 text-center solo-admin">🗑️</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
@@ -87,16 +86,20 @@
         <div id="vista-pedidos" class="hidden">
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-3xl font-black text-emerald-400 italic uppercase">📝 LISTA DE PEDIDOS CLIENTES</h2>
+                    <h2 class="text-3xl font-black text-emerald-400 italic uppercase">📝 LISTA PEDIDOS</h2>
                     <div class="flex gap-2">
-                        <button onclick="descargarExcelPedidos()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold text-xs uppercase">📊 Descargar Excel Pedidos</button>
+                        <button onclick="descargarExcelPedidos()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold text-xs uppercase text-white">📊 Descargar Excel</button>
                         <button onclick="volverAlMenu()" class="bg-slate-700 px-4 py-2 rounded-xl font-bold text-xs">VOLVER</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
-                            <tr><th class="p-4">CLIENTE</th><th class="p-4">REF</th><th class="p-4">MUEBLE</th><th class="p-4">FECHA</th><th class="p-4 text-center">FINALIZAR</th></tr>
+                            <tr>
+                                <th class="p-4">CLIENTE</th><th class="p-4">REF</th><th class="p-4">MUEBLE</th>
+                                <th class="p-4 text-center">CANT</th><th class="p-4">FECHA</th>
+                                <th class="p-4 text-center">LISTO</th>
+                            </tr>
                         </thead>
                         <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
                     </table>
@@ -106,8 +109,7 @@
     </div>
 
     <script>
-        let seccionActual = "";
-        let esAdmin = false;
+        let seccionActual = ""; let esAdmin = false;
         const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
@@ -136,30 +138,30 @@
                 const stock = m.recepcionadas - m.vendido;
                 let colorStock = stock <= 1 ? "text-red-500 font-black animate-pulse" : "text-white";
                 tabla.innerHTML += `
-                    <tr class="font-bold text-xs border-slate-700">
+                    <tr class="font-bold text-xs">
                         <td class="p-4 text-blue-400 font-mono">${m.ref}</td>
                         <td class="p-4 uppercase">${m.descripcion}</td>
                         <td class="p-4 uppercase text-slate-400">${m.color}</td>
                         <td class="p-4 text-center solo-admin">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', -1)" class="bg-red-900/40 w-7 h-7 rounded text-lg">-</button>
+                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', -1)" class="bg-red-900/40 w-7 h-7 rounded">-</button>
                                 <span class="text-green-400 w-4">${m.recepcionadas}</span>
-                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', 1)" class="bg-green-600 w-7 h-7 rounded text-lg">+</button>
+                                <button onclick="ajustar('${m._id}', ${m.recepcionadas}, 'recepcionadas', 1)" class="bg-green-600 w-7 h-7 rounded">+</button>
                             </div>
                         </td>
                         <td class="p-4 text-center solo-admin">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', -1)" class="bg-red-900/40 w-7 h-7 rounded text-lg">-</button>
+                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', -1)" class="bg-red-900/40 w-7 h-7 rounded">-</button>
                                 <span class="text-orange-400 w-4">${m.vendido}</span>
-                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', 1)" class="bg-orange-600 w-7 h-7 rounded text-lg">+</button>
+                                <button onclick="ajustar('${m._id}', ${m.vendido}, 'vendido', 1)" class="bg-orange-600 w-7 h-7 rounded">+</button>
                             </div>
                         </td>
                         <td class="p-4 text-center text-lg ${colorStock}">${stock}</td>
                         <td class="p-4 text-center">
-                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] hover:bg-emerald-500 font-black">🛒 PEDIDO</button>
+                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] font-black">🛒 PEDIDO</button>
                         </td>
                         <td class="p-4 text-center solo-admin">
-                            <button onclick="eliminarMueble('${m._id}')" class="hover:scale-125 transition">🗑️</button>
+                            <button onclick="eliminarMueble('${m._id}')">🗑️</button>
                         </td>
                     </tr>`;
             });
@@ -171,9 +173,7 @@
                 let cantidad = prompt("¿Cuántas unidades han llegado?", "1");
                 if (!cantidad) return;
                 nuevoValor = valorActual + parseInt(cantidad);
-            } else {
-                nuevoValor = Math.max(0, valorActual + cambio);
-            }
+            } else { nuevoValor = Math.max(0, valorActual + cambio); }
             await fetch(`${URL_API}/stock/vender/${id}?${campo}=${nuevoValor}`, { method: 'PUT' });
             cargarStock(seccionActual);
         }
@@ -187,10 +187,9 @@
                 vendido: 0,
                 seccion: seccionActual
             };
-            if(!nuevo.ref) return alert("Pon una referencia");
+            if(!nuevo.ref) return alert("Falta REF");
             await fetch(`${URL_API}/stock/agregar`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(nuevo)
             });
             cargarStock(seccionActual);
@@ -201,11 +200,10 @@
             const cliente = prompt("¿Nombre del Cliente?");
             if (!cliente) return;
             await fetch(`${URL_API}/pedidos/crear`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ cliente, ref, descripcion: desc, color })
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ cliente, ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("¡Pedido anotado correctamente! ✅");
+            alert("Pedido anotado ✅");
         }
 
         async function verPedidos() {
@@ -216,54 +214,54 @@
             const tabla = document.getElementById('cuerpo-pedidos');
             tabla.innerHTML = '';
             datos.forEach(p => {
+                const cant = p.cantidad || 1;
                 tabla.innerHTML += `
                     <tr class="font-bold text-xs text-white border-slate-700">
                         <td class="p-4 text-emerald-400 uppercase">${p.cliente}</td>
                         <td class="p-4 font-mono text-blue-300">${p.ref}</td>
                         <td class="p-4 uppercase text-slate-400">${p.descripcion} (${p.color})</td>
-                        <td class="p-4 text-slate-500">${p.fecha}</td>
                         <td class="p-4 text-center">
-                            <button onclick="borrarPedido('${p._id}')" class="text-xl hover:scale-125 transition">✅</button>
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="ajustarCantPed('${p._id}', ${cant}, -1)" class="bg-red-900/40 w-6 h-6 rounded">-</button>
+                                <span class="w-4">${cant}</span>
+                                <button onclick="ajustarCantPed('${p._id}', ${cant}, 1)" class="bg-emerald-600 w-6 h-6 rounded">+</button>
+                            </div>
                         </td>
+                        <td class="p-4 text-slate-500">${p.fecha}</td>
+                        <td class="p-4 text-center"><button onclick="borrarPedido('${p._id}')" class="text-xl">✅</button></td>
                     </tr>`;
             });
         }
 
-        async function importarExcel() {
-            const fileInput = document.getElementById('inputExcel');
-            if (!fileInput.files[0]) return alert("Selecciona un archivo .xlsx");
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            try {
-                await fetch(`${URL_API}/stock/importar`, { method: 'POST', body: formData });
-                alert("Excel subido con éxito 📈");
-                location.reload();
-            } catch (e) { alert("Error al subir"); }
+        async function ajustarCantPed(id, actual, cambio) {
+            const nueva = Math.max(1, actual + cambio);
+            await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nueva}`, { method: 'PUT' });
+            verPedidos();
         }
 
         async function borrarPedido(id) {
-            if(confirm("¿Pedido entregado o finalizado?")) {
-                await fetch(`${URL_API}/pedidos/eliminar/${id}`, { method: 'DELETE' });
-                verPedidos();
-            }
+            if(confirm("¿Pedido finalizado?")) { await fetch(`${URL_API}/pedidos/eliminar/${id}`, { method: 'DELETE' }); verPedidos(); }
+        }
+
+        async function importarExcel() {
+            const fileInput = document.getElementById('inputExcel');
+            if (!fileInput.files[0]) return alert("Elige archivo");
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            await fetch(`${URL_API}/stock/importar`, { method: 'POST', body: formData });
+            location.reload();
         }
 
         function descargarExcel() { window.location.href = `${URL_API}/stock/descargar`; }
         function descargarExcelPedidos() { window.location.href = `${URL_API}/pedidos/descargar`; }
-        
         function volverAlMenu() {
             document.getElementById('vista-stock').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.add('hidden');
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
-
         async function eliminarMueble(id) {
-            if(confirm("¿Quieres borrar este artículo definitivamente?")) {
-                await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'});
-                cargarStock(seccionActual);
-            }
+            if(confirm("¿Borrar?")) { await fetch(`${URL_API}/stock/eliminar/${id}`, {method: 'DELETE'}); cargarStock(seccionActual); }
         }
-
         function filtrar() {
             let filtro = document.getElementById('buscador').value.toUpperCase();
             let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
