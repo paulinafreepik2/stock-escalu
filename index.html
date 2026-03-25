@@ -140,8 +140,19 @@
             });
         }
 
-        async function ajustar(id, valorActual, campo, cambio) {
-            const nuevoValor = Math.max(0, valorActual + cambio);
+async function ajustar(id, valorActual, campo, cambio) {
+            let nuevoValor;
+            
+            if (cambio === 1) {
+                // Si le das al +, preguntamos cuántas han llegado o se han vendido
+                let cantidad = prompt("¿Cuántas unidades quieres añadir?", "1");
+                if (cantidad === null || cantidad === "") return; // Si cancelas, no hace nada
+                nuevoValor = valorActual + parseInt(cantidad);
+            } else {
+                // Si le das al -, resta de 1 en 1 para corregir errores rápido
+                nuevoValor = Math.max(0, valorActual - 1);
+            }
+
             await fetch(`${URL_API}/stock/vender/${id}?${campo}=${nuevoValor}`, { method: 'PUT' });
             cargarStock(seccionActual);
         }
