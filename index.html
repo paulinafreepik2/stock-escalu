@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMMINENT STOCK</title>
+    <title>IMMINENT STOCK - FULL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modo-cliente .solo-admin { display: none !important; }
         .modo-cliente .col-pedido { display: none !important; }
-        .solo-sofas #btn-volver-menu { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans text-sm">
@@ -30,19 +29,31 @@
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
-                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg">📦 ELIAS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-purple-400">📦 ELIAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
             </div>
         </div>
 
         <div id="vista-stock" class="hidden">
+            <div class="solo-admin bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-6">
+                <h3 class="text-emerald-400 font-bold mb-3 uppercase text-xs">➕ Añadir Producto a <span id="nombre-linea-form"></span></h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <input id="new-ref" placeholder="REF" class="bg-slate-900 p-2 rounded-lg border border-slate-600 text-white uppercase">
+                    <input id="new-desc" placeholder="DESCRIPCIÓN" class="bg-slate-900 p-2 rounded-lg border border-slate-600 text-white uppercase">
+                    <input id="new-color" placeholder="COLOR" class="bg-slate-900 p-2 rounded-lg border border-slate-600 text-white uppercase">
+                    <input id="new-stock" type="number" placeholder="STOCK INICIAL" class="bg-slate-900 p-2 rounded-lg border border-slate-600 text-white">
+                    <button onclick="guardarNuevoProducto()" class="col-span-2 md:col-span-4 bg-emerald-600 p-2 rounded-lg font-bold uppercase hover:bg-emerald-500 transition">Guardar en Base de Datos</button>
+                </div>
+            </div>
+
             <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4">
                 <div class="flex flex-wrap justify-between items-center gap-3">
                     <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar producto..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
-                    <button id="btn-volver-menu" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
+                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
                 </div>
             </div>
+
             <div class="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl">
                 <table class="w-full text-left">
                     <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
@@ -67,8 +78,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead id="cabecera-pedidos" class="bg-slate-700 text-slate-400 text-[10px] uppercase">
-                            </thead>
+                        <thead id="cabecera-pedidos" class="bg-slate-700 text-slate-400 text-[10px] uppercase"></thead>
                         <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
                     </table>
                 </div>
@@ -82,8 +92,8 @@
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente','solo-sofas'); entrar("ADMIN"); }
-            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente','solo-sofas'); entrar("SOFÁS"); cargarStock('SOFAS'); }
+            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMIN"); }
+            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("SOFÁS"); cargarStock('SOFAS'); }
             else if (pass === 'INVITADO') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
             else { alert("❌ Incorrecta"); }
         }
@@ -99,6 +109,7 @@
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = seccion;
+            document.getElementById('nombre-linea-form').innerText = seccion;
             const res = await fetch(`${URL_API}/stock/${seccion}`);
             const datos = await res.json();
             const tabla = document.getElementById('cuerpo-tabla');
@@ -109,6 +120,21 @@
             });
         }
 
+        async function guardarNuevoProducto() {
+            const ref = document.getElementById('new-ref').value.toUpperCase();
+            const desc = document.getElementById('new-desc').value.toUpperCase();
+            const color = document.getElementById('new-color').value.toUpperCase();
+            const stock = document.getElementById('new-stock').value || 0;
+            if(!ref || !desc) return alert("Falta REF o DESC");
+            await fetch(`${URL_API}/stock/agregar`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ seccion: seccionActual, ref, descripcion: desc, color, recepcionadas: parseInt(stock), vendido: 0 })
+            });
+            alert("Guardado!");
+            cargarStock(seccionActual);
+            document.getElementById('new-ref').value = ''; document.getElementById('new-desc').value = '';
+        }
+
         async function anotarPedido(ref, desc, color) {
             const cliente = prompt("¿Nombre del Cliente?");
             if (!cliente) return;
@@ -116,7 +142,7 @@
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("Anotado!");
+            alert("Pedido anotado!");
         }
 
         async function verPedidos() {
@@ -132,7 +158,7 @@
             if (viendoHistorial) {
                 document.getElementById('titulo-pedidos').innerText = "📜 CLIENTES EN HISTORIAL";
                 document.getElementById('btn-toggle-historial').innerText = "📝 Ver Activos";
-                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">ESTADO</th><th class="p-4 text-center">ACCIÓN</th></tr>`;
+                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">RESUMEN</th><th class="p-4 text-center">ACCIÓN</th></tr>`;
                 renderizarPedidos(`${URL_API}/pedidos/historial`);
             } else { verPedidos(); }
         }
@@ -148,8 +174,8 @@
             if (viendoHistorial) {
                 const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
                 clientes.forEach(c => {
-                    const cant = pedidosCache.filter(p => p.cliente === c).length;
-                    tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="verDetalle('${c}')"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${c}</td><td class="p-4 text-slate-500 italic">Tiene ${cant} pedidos realizados</td><td class="p-4 text-center"><button class="bg-blue-600 px-3 py-1 rounded text-[10px]">VER TODO</button></td></tr>`;
+                    const num = pedidosCache.filter(p => p.cliente === c).length;
+                    tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="verDetalle('${c}')"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${c}</td><td class="p-4 text-slate-500 italic">Total: ${num} pedidos</td><td class="p-4 text-center"><button class="bg-blue-600 px-3 py-1 rounded text-[10px]">VER TODO</button></td></tr>`;
                 });
             } else {
                 pedidosCache.forEach(p => {
