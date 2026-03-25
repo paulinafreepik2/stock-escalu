@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK IMMINENT</title>
+    <title>IMMINENT STOCK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modo-cliente .solo-admin { display: none !important; }
@@ -16,7 +16,7 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
             <h1 class="text-4xl font-black mb-6 italic tracking-tighter text-white">IMMINENT</h1>
-            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl">
+            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl uppercase">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
 
@@ -25,13 +25,12 @@
                 <h1 class="text-6xl font-black italic text-white tracking-tighter">IMMINENT</h1>
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-xs"></p>
             </header>
-            
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-6 rounded-2xl font-bold shadow-lg text-lg">🌲 DAKOTA</button>
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
-                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg"> Couch SOFÁS</button>
-                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-purple-400">📦 ELIAS</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg">📦 ELIAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
             </div>
         </div>
@@ -48,9 +47,7 @@
                 <table class="w-full text-left">
                     <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
                         <tr>
-                            <th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4">COLOR</th>
-                            <th class="p-4 text-center text-white">STOCK</th>
-                            <th class="p-4 text-center col-pedido">PEDIR</th>
+                            <th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4 text-center">STOCK</th><th class="p-4 text-center col-pedido">PEDIR</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
@@ -61,22 +58,17 @@
         <div id="vista-pedidos" class="hidden">
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
                 <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
-                    <h2 id="titulo-pedidos" class="text-3xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS ACTIVOS</h2>
+                    <h2 id="titulo-pedidos" class="text-3xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS</h2>
                     <div class="flex gap-2">
-                        <input id="busc-pedidos" onkeyup="filtrarPedidos()" placeholder="🔎 Buscar cliente..." class="p-2 rounded-xl bg-slate-900 border border-slate-600 text-xs text-white">
-                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase text-white">📜 Ver Historial</button>
+                        <input id="busc-pedidos" onkeyup="filtrarPedidos()" placeholder="🔎 Buscar..." class="p-2 rounded-xl bg-slate-900 border border-slate-600 text-xs text-white">
+                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase">📜 Ver Historial</button>
                         <button onclick="volverAlMenu()" class="bg-slate-700 px-4 py-2 rounded-xl font-bold text-[10px]">VOLVER</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
-                            <tr>
-                                <th class="p-4">CLIENTE</th><th class="p-4">REF</th><th class="p-4">MUEBLE</th>
-                                <th class="p-4 text-center">CANT</th><th class="p-4">FECHA</th>
-                                <th id="th-accion" class="p-4 text-center">OK</th>
-                            </tr>
-                        </thead>
+                        <thead id="cabecera-pedidos" class="bg-slate-700 text-slate-400 text-[10px] uppercase">
+                            </thead>
                         <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
                     </table>
                 </div>
@@ -85,18 +77,15 @@
     </div>
 
     <script>
-        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false;
+        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = [];
         const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { 
-                esAdmin = true; document.body.classList.remove('modo-cliente', 'solo-sofas'); entrar("ADMIN"); 
-            } else if (pass === 'SOFAS') { 
-                esAdmin = false; document.body.classList.add('modo-cliente', 'solo-sofas'); entrar("SOFÁS"); cargarStock('SOFAS');
-            } else if (pass === 'INVITADO') { 
-                esAdmin = false; document.body.classList.add('modo-cliente'); document.body.classList.remove('solo-sofas'); entrar("INVITADO"); 
-            } else { alert("❌ Clave incorrecta"); }
+            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente','solo-sofas'); entrar("ADMIN"); }
+            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente','solo-sofas'); entrar("SOFÁS"); cargarStock('SOFAS'); }
+            else if (pass === 'INVITADO') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
+            else { alert("❌ Incorrecta"); }
         }
 
         function entrar(txt) {
@@ -116,7 +105,7 @@
             tabla.innerHTML = '';
             datos.forEach(m => {
                 const stock = m.recepcionadas - m.vendido;
-                tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700"><td class="p-4 text-blue-400">${m.ref}</td><td class="p-4 uppercase">${m.descripcion}</td><td class="p-4 text-slate-400 uppercase">${m.color}</td><td class="p-4 text-center text-lg">${stock}</td><td class="p-4 text-center col-pedido"><button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] uppercase">🛒 Pedido</button></td></tr>`;
+                tabla.innerHTML += `<tr class="font-bold text-xs"><td class="p-4 text-blue-400 font-mono">${m.ref}</td><td class="p-4 uppercase">${m.descripcion} (${m.color})</td><td class="p-4 text-center text-lg">${stock}</td><td class="p-4 text-center col-pedido"><button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] uppercase">🛒 Pedir</button></td></tr>`;
             });
         }
 
@@ -127,81 +116,64 @@
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("Pedido anotado.");
+            alert("Anotado!");
         }
 
         async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('titulo-pedidos').innerText = "📝 PEDIDOS ACTIVOS";
             document.getElementById('btn-toggle-historial').innerText = "📜 Ver Historial";
+            document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">MUEBLE</th><th class="p-4 text-center">CANT</th><th class="p-4 text-center">OK</th></tr>`;
             renderizarPedidos(`${URL_API}/pedidos`);
         }
 
         async function toggleHistorial() {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
-                document.getElementById('titulo-pedidos').innerText = "📜 HISTORIAL FINALIZADOS";
+                document.getElementById('titulo-pedidos').innerText = "📜 CLIENTES EN HISTORIAL";
                 document.getElementById('btn-toggle-historial').innerText = "📝 Ver Activos";
+                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">ESTADO</th><th class="p-4 text-center">ACCIÓN</th></tr>`;
                 renderizarPedidos(`${URL_API}/pedidos/historial`);
-            } else {
-                verPedidos();
-            }
+            } else { verPedidos(); }
         }
 
         async function renderizarPedidos(url) {
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
             const res = await fetch(url);
-            const datos = await res.json();
+            pedidosCache = await res.json();
             const tabla = document.getElementById('cuerpo-pedidos');
             tabla.innerHTML = '';
-            datos.forEach(p => {
-                const cant = p.cantidad || 1;
-                const btnOk = viendoHistorial ? 
-                    `<span class="text-slate-500 italic text-[10px]">Entregado</span>` : 
-                    `<button onclick="finalizarPedido('${p._id}')" class="text-xl">✅</button>`;
-                
-                // Si estamos en activos, mostramos los botones de + y -
-                const controlCant = viendoHistorial ? 
-                    `<span>${cant}</span>` :
-                    `<div class="flex items-center justify-center gap-2">
-                        <button onclick="ajustarCantPed('${p._id}', ${cant}, -1)" class="bg-red-900/40 w-6 h-6 rounded">-</button>
-                        <span class="w-4 text-center">${cant}</span>
-                        <button onclick="ajustarCantPed('${p._id}', ${cant}, 1)" class="bg-emerald-600 w-6 h-6 rounded">+</button>
-                    </div>`;
 
-                tabla.innerHTML += `
-                    <tr class="font-bold text-xs border-slate-700">
-                        <td class="p-4 text-emerald-400 uppercase cliente-nombre">${p.cliente}</td>
-                        <td class="p-4 font-mono text-blue-300">${p.ref}</td>
-                        <td class="p-4 uppercase text-slate-400">${p.descripcion} (${p.color})</td>
-                        <td class="p-4 text-center">${controlCant}</td>
-                        <td class="p-4 text-slate-500">${p.fecha || ''}</td>
-                        <td class="p-4 text-center">${btnOk}</td>
-                    </tr>`;
-            });
+            if (viendoHistorial) {
+                const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
+                clientes.forEach(c => {
+                    const cant = pedidosCache.filter(p => p.cliente === c).length;
+                    tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="verDetalle('${c}')"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${c}</td><td class="p-4 text-slate-500 italic">Tiene ${cant} pedidos realizados</td><td class="p-4 text-center"><button class="bg-blue-600 px-3 py-1 rounded text-[10px]">VER TODO</button></td></tr>`;
+                });
+            } else {
+                pedidosCache.forEach(p => {
+                    const cant = p.cantidad || 1;
+                    tabla.innerHTML += `<tr class="font-bold text-xs"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${p.cliente}</td><td class="p-4 uppercase text-slate-400">${p.descripcion} (${p.ref})</td><td class="p-4 text-center"><div class="flex items-center justify-center gap-2"><button onclick="ajustar('${p._id}',${cant},-1)" class="bg-slate-700 w-6 h-6 rounded">-</button><span>${cant}</span><button onclick="ajustar('${p._id}',${cant},1)" class="bg-emerald-600 w-6 h-6 rounded">+</button></div></td><td class="p-4 text-center"><button onclick="terminar('${p._id}')" class="text-xl">✅</button></td></tr>`;
+                });
+            }
         }
 
-        async function ajustarCantPed(id, actual, cambio) {
+        function verDetalle(cliente) {
+            const lista = pedidosCache.filter(p => p.cliente === cliente);
+            let txt = `HISTORIAL DE ${cliente}:\n\n`;
+            lista.forEach(p => txt += `• ${p.fecha}: ${p.descripcion} (${p.ref}) x${p.cantidad}\n`);
+            alert(txt);
+        }
+
+        async function ajustar(id, actual, cambio) {
             const nueva = Math.max(1, actual + cambio);
             await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nueva}`, { method: 'PUT' });
             verPedidos();
         }
 
-        async function finalizarPedido(id) {
-            if(confirm("¿Pedido entregado? Pasará al historial.")) {
-                await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' });
-                verPedidos();
-            }
-        }
-
-        function filtrarPedidos() {
-            let filtro = document.getElementById('busc-pedidos').value.toUpperCase();
-            let filas = document.getElementById('cuerpo-pedidos').getElementsByTagName('tr');
-            for (let i = 0; i < filas.length; i++) {
-                let nombre = filas[i].querySelector('.cliente-nombre').innerText.toUpperCase();
-                filas[i].style.display = nombre.includes(filtro) ? "" : "none";
-            }
+        async function terminar(id) {
+            if (confirm("¿Pedido entregado?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); }
         }
 
         function volverAlMenu() {
@@ -211,11 +183,15 @@
         }
 
         function filtrar() {
-            let filtro = document.getElementById('buscador').value.toUpperCase();
+            let f = document.getElementById('buscador').value.toUpperCase();
             let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
-            for (let i = 0; i < filas.length; i++) {
-                filas[i].style.display = filas[i].innerText.toUpperCase().includes(filtro) ? "" : "none";
-            }
+            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; }
+        }
+
+        function filtrarPedidos() {
+            let f = document.getElementById('busc-pedidos').value.toUpperCase();
+            let filas = document.getElementById('cuerpo-pedidos').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; }
         }
     </script>
 </body>
