@@ -15,7 +15,7 @@
     <div class="max-w-6xl mx-auto p-2 md:p-4">
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
-            <h1 class="text-4xl font-black mb-6 italic tracking-tighter">IMMINENT</h1>
+            <h1 class="text-4xl font-black mb-6 italic tracking-tighter text-white">IMMINENT</h1>
             <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
@@ -30,15 +30,15 @@
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-6 rounded-2xl font-bold shadow-lg text-lg">🌲 DAKOTA</button>
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
-                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
-                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg">📦 ELIAS</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg"> Couch SOFÁS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-purple-400">📦 ELIAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
             </div>
         </div>
 
         <div id="vista-stock" class="hidden">
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4 text-center">
-                <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4">
+                <div class="flex flex-wrap justify-between items-center gap-3">
                     <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar producto..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
                     <button id="btn-volver-menu" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
@@ -61,7 +61,7 @@
         <div id="vista-pedidos" class="hidden">
             <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
                 <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
-                    <h2 id="titulo-pedidos" class="text-3xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS</h2>
+                    <h2 id="titulo-pedidos" class="text-3xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS ACTIVOS</h2>
                     <div class="flex gap-2">
                         <input id="busc-pedidos" onkeyup="filtrarPedidos()" placeholder="🔎 Buscar cliente..." class="p-2 rounded-xl bg-slate-900 border border-slate-600 text-xs text-white">
                         <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase text-white">📜 Ver Historial</button>
@@ -116,35 +116,32 @@
             tabla.innerHTML = '';
             datos.forEach(m => {
                 const stock = m.recepcionadas - m.vendido;
-                tabla.innerHTML += `<tr class="font-bold text-xs"><td class="p-4 text-blue-400">${m.ref}</td><td class="p-4">${m.descripcion}</td><td class="p-4 text-slate-400">${m.color}</td><td class="p-4 text-center text-lg">${stock}</td><td class="p-4 text-center col-pedido"><button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] uppercase">🛒 Pedido</button></td></tr>`;
+                tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700"><td class="p-4 text-blue-400">${m.ref}</td><td class="p-4 uppercase">${m.descripcion}</td><td class="p-4 text-slate-400 uppercase">${m.color}</td><td class="p-4 text-center text-lg">${stock}</td><td class="p-4 text-center col-pedido"><button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] uppercase">🛒 Pedido</button></td></tr>`;
             });
         }
 
         async function anotarPedido(ref, desc, color) {
-            if (!esAdmin) return;
             const cliente = prompt("¿Nombre del Cliente?");
             if (!cliente) return;
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("Pedido guardado.");
+            alert("Pedido anotado.");
         }
 
         async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('titulo-pedidos').innerText = "📝 PEDIDOS ACTIVOS";
             document.getElementById('btn-toggle-historial').innerText = "📜 Ver Historial";
-            document.getElementById('th-accion').innerText = "OK";
             renderizarPedidos(`${URL_API}/pedidos`);
         }
 
         async function toggleHistorial() {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
-                document.getElementById('titulo-pedidos').innerText = "📜 HISTORIAL";
+                document.getElementById('titulo-pedidos').innerText = "📜 HISTORIAL FINALIZADOS";
                 document.getElementById('btn-toggle-historial').innerText = "📝 Ver Activos";
-                document.getElementById('th-accion').innerText = "ESTADO";
                 renderizarPedidos(`${URL_API}/pedidos/historial`);
             } else {
                 verPedidos();
@@ -159,20 +156,36 @@
             const tabla = document.getElementById('cuerpo-pedidos');
             tabla.innerHTML = '';
             datos.forEach(p => {
+                const cant = p.cantidad || 1;
                 const btnOk = viendoHistorial ? 
-                    `<span class="text-slate-500 italic">Entregado</span>` : 
+                    `<span class="text-slate-500 italic text-[10px]">Entregado</span>` : 
                     `<button onclick="finalizarPedido('${p._id}')" class="text-xl">✅</button>`;
                 
+                // Si estamos en activos, mostramos los botones de + y -
+                const controlCant = viendoHistorial ? 
+                    `<span>${cant}</span>` :
+                    `<div class="flex items-center justify-center gap-2">
+                        <button onclick="ajustarCantPed('${p._id}', ${cant}, -1)" class="bg-red-900/40 w-6 h-6 rounded">-</button>
+                        <span class="w-4 text-center">${cant}</span>
+                        <button onclick="ajustarCantPed('${p._id}', ${cant}, 1)" class="bg-emerald-600 w-6 h-6 rounded">+</button>
+                    </div>`;
+
                 tabla.innerHTML += `
-                    <tr class="font-bold text-xs text-white border-slate-700">
+                    <tr class="font-bold text-xs border-slate-700">
                         <td class="p-4 text-emerald-400 uppercase cliente-nombre">${p.cliente}</td>
                         <td class="p-4 font-mono text-blue-300">${p.ref}</td>
-                        <td class="p-4 uppercase text-slate-400">${p.descripcion}</td>
-                        <td class="p-4 text-center">${p.cantidad || 1}</td>
+                        <td class="p-4 uppercase text-slate-400">${p.descripcion} (${p.color})</td>
+                        <td class="p-4 text-center">${controlCant}</td>
                         <td class="p-4 text-slate-500">${p.fecha || ''}</td>
                         <td class="p-4 text-center">${btnOk}</td>
                     </tr>`;
             });
+        }
+
+        async function ajustarCantPed(id, actual, cambio) {
+            const nueva = Math.max(1, actual + cambio);
+            await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nueva}`, { method: 'PUT' });
+            verPedidos();
         }
 
         async function finalizarPedido(id) {
