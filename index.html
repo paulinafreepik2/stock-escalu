@@ -2,146 +2,158 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STOCK IMMINENT - REPARADO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IMMINENT STOCK - CONTROL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .modo-cliente .solo-admin { display: none !important; }
-        .tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .bg-cambrian { background: #926239; color: white; }
-        .bg-roble { background: #b38b59; color: white; }
-        .bg-blanco { background: #fff; color: #000; border: 1px solid #ccc; }
-        .btn-accion { width: 40px; height: 40px; border-radius: 8px; font-weight: bold; font-size: 20px; }
+        .btn-accion { width: 45px; height: 45px; border-radius: 12px; font-weight: bold; font-size: 24px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .btn-accion:active { transform: scale(0.9); }
+        .tag-color { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; background: #334155; color: #cbd5e1; text-transform: uppercase; }
     </style>
 </head>
-<body class="bg-slate-900 text-white p-4">
+<body class="bg-slate-900 text-slate-100 font-sans">
 
-    <div id="login" class="max-w-md mx-auto mt-20 bg-slate-800 p-6 rounded-2xl shadow-xl text-center">
-        <h1 class="text-3xl font-black mb-4">IMMINENT</h1>
-        <input id="pass" type="password" placeholder="CLAVE" class="w-full p-3 mb-4 rounded bg-slate-700 text-center uppercase font-bold">
-        <button onclick="entrar()" class="w-full bg-blue-600 p-3 rounded font-bold uppercase">Entrar</button>
-    </div>
-
-    <div id="menu" class="hidden text-center">
-        <h1 class="text-5xl font-black mb-8 italic">IMMINENT</h1>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <button onclick="ver('DAKOTA')" class="bg-orange-800 p-6 rounded-xl font-bold">DAKOTA</button>
-            <button onclick="ver('DIURNO')" class="bg-sky-600 p-6 rounded-xl font-bold">DIURNO</button>
-            <button onclick="ver('NOCTURNO')" class="bg-indigo-800 p-6 rounded-xl font-bold">NOCTURNO</button>
-            <button onclick="ver('SOFAS')" class="bg-red-800 p-6 rounded-xl font-bold">SOFÁS</button>
-            <button onclick="ver('ELIAS')" class="bg-purple-800 p-6 rounded-xl font-bold">ELIAS</button>
-            <button onclick="verPedidos()" class="solo-admin bg-emerald-700 p-6 rounded-xl font-bold">PEDIDOS</button>
+    <div class="max-w-4xl mx-auto p-3">
+        <div id="seccion-login" class="mt-10 bg-slate-800 p-8 rounded-3xl border border-slate-700 text-center shadow-2xl">
+            <h1 class="text-4xl font-black italic mb-6 tracking-tighter">IMMINENT</h1>
+            <input id="pass" type="password" placeholder="CONTRASEÑA" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-700 text-center text-xl font-bold mb-4 outline-none focus:border-blue-500">
+            <button onclick="intentarEntrar()" class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-bold text-xl uppercase transition">Entrar</button>
         </div>
-    </div>
 
-    <div id="vista-stock" class="hidden">
-        <div class="flex justify-between items-center mb-4">
-            <h2 id="titulo" class="text-2xl font-black text-yellow-500 uppercase"></h2>
-            <button onclick="irMenu()" class="bg-slate-700 px-4 py-2 rounded font-bold">VOLVER</button>
+        <div id="seccion-menu" class="hidden">
+            <h1 class="text-5xl font-black italic text-center mb-8 mt-4">IMMINENT</h1>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="abrirSeccion('DAKOTA')" class="bg-orange-900 p-8 rounded-2xl font-black text-xl shadow-lg">🌲 DAKOTA</button>
+                <button onclick="abrirSeccion('DIURNO')" class="bg-sky-700 p-8 rounded-2xl font-black text-xl shadow-lg">🌅 DIURNO</button>
+                <button onclick="abrirSeccion('NOCTURNO')" class="bg-indigo-900 p-8 rounded-2xl font-black text-xl shadow-lg">🌙 NOCTURNO</button>
+                <button onclick="abrirSeccion('SOFAS')" class="bg-red-800 p-8 rounded-2xl font-black text-xl shadow-lg">🛋️ SOFÁS</button>
+                <button onclick="abrirSeccion('ELIAS')" class="bg-purple-800 p-8 rounded-2xl font-black text-xl shadow-lg col-span-2">📦 ELIAS</button>
+            </div>
         </div>
-        
-        <input id="bus" onkeyup="buscar()" placeholder="Buscar producto..." class="w-full p-3 mb-4 rounded bg-slate-800 border border-slate-600">
 
-        <div class="bg-slate-800 rounded-xl overflow-hidden shadow-lg">
-            <table class="w-full text-left">
-                <thead class="bg-slate-700 text-xs uppercase">
-                    <tr>
-                        <th class="p-3">REF / MUEBLE</th>
-                        <th class="p-3 text-center">RECIBIDAS</th>
-                        <th class="p-3 text-center">VENDIDAS</th>
-                        <th class="p-3 text-center">STOCK</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-cuerpo" class="divide-y divide-slate-700"></tbody>
-            </table>
+        <div id="seccion-stock" class="hidden">
+            <div class="flex justify-between items-center mb-4 bg-slate-800 p-4 rounded-2xl border border-slate-700">
+                <h2 id="txt-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
+                <button onclick="volverMenu()" class="bg-slate-700 px-4 py-2 rounded-lg font-bold text-xs">VOLVER</button>
+            </div>
+
+            <input id="filtro" onkeyup="ejecutarFiltro()" placeholder="🔎 Buscar mueble o referencia..." class="w-full p-4 mb-4 rounded-2xl bg-slate-800 border border-slate-700 text-white outline-none">
+
+            <div id="contenedor-muebles" class="space-y-3">
+                </div>
         </div>
     </div>
 
     <script>
-        const API = "https://stock-escalu-app.onrender.com";
-        let seccion = "";
-        let esAdmin = false;
+        const API_BASE = "https://stock-escalu-app.onrender.com";
+        let seccionActual = "";
+        let isAdmin = false;
 
-        function entrar() {
+        function intentarEntrar() {
             const p = document.getElementById('pass').value.toUpperCase();
-            if(p === '12345CUCA') { esAdmin = true; } 
-            else { esAdmin = false; document.body.classList.add('modo-cliente'); }
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('menu').classList.remove('hidden');
+            if(p === '12345CUCA') { 
+                isAdmin = true; 
+                document.body.classList.remove('modo-cliente');
+            } else { 
+                isAdmin = false; 
+                document.body.classList.add('modo-cliente');
+            }
+            document.getElementById('seccion-login').classList.add('hidden');
+            document.getElementById('seccion-menu').classList.remove('hidden');
         }
 
-        async function ver(s) {
-            seccion = s;
-            document.getElementById('menu').classList.add('hidden');
-            document.getElementById('vista-stock').classList.remove('hidden');
-            document.getElementById('titulo').innerText = s;
-            cargar();
+        async function abrirSeccion(nombre) {
+            seccionActual = nombre;
+            document.getElementById('seccion-menu').classList.add('hidden');
+            document.getElementById('seccion-stock').classList.remove('hidden');
+            document.getElementById('txt-linea').innerText = nombre;
+            cargarDatos();
         }
 
-        async function cargar() {
-            const res = await fetch(`${API}/stock/${seccion}`);
-            const datos = await res.json();
-            const tbody = document.getElementById('tabla-cuerpo');
-            tbody.innerHTML = '';
+        async function cargarDatos() {
+            const lista = document.getElementById('contenedor-muebles');
+            lista.innerHTML = '<p class="text-center p-10 animate-pulse text-slate-500 font-bold">CARGANDO PRODUCTOS...</p>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/stock/${seccionActual}`);
+                const muebles = await res.json();
+                lista.innerHTML = '';
 
-            datos.forEach(m => {
-                const stock = m.recepcionadas - m.vendido;
-                tbody.innerHTML += `
-                    <tr class="border-slate-700">
-                        <td class="p-3">
-                            <div class="font-bold text-blue-400">${m.ref}</div>
-                            <div class="text-xs text-slate-400 uppercase">${m.descripcion}</div>
-                            <div class="mt-1"><span class="tag bg-slate-600">${m.color}</span></div>
-                        </td>
-                        <td class="p-3">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="modificarPop('${m._id}', 'rec', -1)" class="solo-admin btn-accion bg-red-700">-</button>
-                                <span class="text-lg font-bold w-8 text-center">${m.recepcionadas}</span>
-                                <button onclick="modificarPop('${m._id}', 'rec', 1)" class="solo-admin btn-accion bg-emerald-600">+</button>
+                muebles.forEach(m => {
+                    const stockReal = m.recepcionadas - m.vendido;
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-md item-mueble";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-blue-400 font-mono font-bold text-lg">${m.ref}</div>
+                                <div class="text-white font-bold uppercase text-sm">${m.descripcion}</div>
+                                <div class="mt-1"><span class="tag-color">${m.color}</span></div>
                             </div>
-                        </td>
-                        <td class="p-3">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="modificarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-accion bg-red-700">-</button>
-                                <span class="text-lg font-bold w-8 text-center">${m.vendido}</span>
-                                <button onclick="modificarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-accion bg-emerald-600">+</button>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500 font-bold">STOCK</div>
+                                <div class="text-3xl font-black text-yellow-500">${stockReal}</div>
                             </div>
-                        </td>
-                        <td class="p-3 text-center text-2xl font-black text-yellow-500">${stock}</td>
-                    </tr>
-                `;
-            });
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 pt-2 border-t border-slate-700/50">
+                            <div class="text-center">
+                                <div class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Recepcionadas</div>
+                                <div class="flex items-center justify-center gap-3">
+                                    <button onclick="cambiarConAviso('${m._id}', 'rec', -1)" class="solo-admin btn-accion bg-red-900/50 text-red-400 border border-red-800/50">-</button>
+                                    <span class="text-xl font-black w-8">${m.recepcionadas}</span>
+                                    <button onclick="cambiarConAviso('${m._id}', 'rec', 1)" class="solo-admin btn-accion bg-emerald-900/50 text-emerald-400 border border-emerald-800/50">+</button>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Vendidas</div>
+                                <div class="flex items-center justify-center gap-3">
+                                    <button onclick="cambiarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-accion bg-slate-700 text-white">-</button>
+                                    <span class="text-xl font-black w-8">${m.vendido}</span>
+                                    <button onclick="cambiarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-accion bg-slate-700 text-white">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    lista.appendChild(card);
+                });
+            } catch (error) {
+                lista.innerHTML = '<p class="text-red-500 text-center p-10 font-bold">ERROR DE CONEXIÓN</p>';
+            }
         }
 
-        // ESTA ES LA FUNCIÓN QUE FALLABA, AHORA ESTÁ REHECHA
-        async function modificarPop(id, tipo, signo) {
-            let cantidad = prompt("¿Cuántas unidades?");
-            if (cantidad !== null && cantidad !== "" && !isNaN(cantidad)) {
-                let valorFinal = parseInt(cantidad) * signo;
-                try {
-                    await fetch(`${API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valorFinal}`, { method: 'PUT' });
-                    cargar(); // Recargar la tabla
-                } catch (err) {
-                    alert("Error al conectar con el servidor");
+        // ESTA ES LA FUNCIÓN DEL BOTÓN + (RECIBIDAS)
+        async function cambiarConAviso(id, tipo, signo) {
+            const valorStr = prompt("¿CUÁNTAS UNIDADES VAS A MODIFICAR?");
+            
+            if (valorStr !== null && valorStr !== "") {
+                const cantidad = parseInt(valorStr);
+                if (!isNaN(cantidad)) {
+                    const total = cantidad * signo;
+                    await fetch(`${API_BASE}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
+                    cargarDatos();
+                } else {
+                    alert("Por favor, introduce un número válido.");
                 }
             }
         }
 
-        async function modificarDirecto(id, tipo, valor) {
-            await fetch(`${API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
-            cargar();
+        async function cambiarDirecto(id, tipo, valor) {
+            await fetch(`${API_BASE}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
+            cargarDatos();
         }
 
-        function irMenu() {
-            document.getElementById('vista-stock').classList.add('hidden');
-            document.getElementById('menu').classList.remove('hidden');
+        function volverMenu() {
+            document.getElementById('seccion-stock').classList.add('hidden');
+            document.getElementById('seccion-menu').classList.remove('hidden');
         }
 
-        function buscar() {
-            let f = document.getElementById('bus').value.toUpperCase();
-            let filas = document.getElementById('tabla-cuerpo').getElementsByTagName('tr');
-            for (let i = 0; i < filas.length; i++) {
-                filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none";
+        function ejecutarFiltro() {
+            const busqueda = document.getElementById('filtro').value.toUpperCase();
+            const items = document.getElementsByClassName('item-mueble');
+            for (let i = 0; i < items.length; i++) {
+                items[i].style.display = items[i].innerText.toUpperCase().includes(busqueda) ? "" : "none";
             }
         }
     </script>
