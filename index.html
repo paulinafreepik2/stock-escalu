@@ -41,7 +41,7 @@
         </div>
 
         <div id="vista-stock" class="hidden">
-            <div class="solo-admin bg-card p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
+            <div id="form-admin" class="solo-admin bg-card p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
                 <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ NUEVO PRODUCTO EN <span id="nombre-linea-form"></span></h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <input id="new-ref" placeholder="REF" class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white font-bold outline-none">
@@ -53,7 +53,7 @@
                         <option value="CAMBRIAN/PIZARRA">CAMBRIAN/PIZARRA</option><option value="TIBET/PIZARRA">TIBET/PIZARRA</option>
                     </select>
                     <input id="new-stock-ini" type="number" placeholder="CANT." class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white outline-none">
-                    <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">GUARDAR</button>
+                    <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg hover:bg-emerald-500 transition">GUARDAR</button>
                 </div>
             </div>
 
@@ -70,9 +70,9 @@
                     <thead class="bg-header text-slate-500 text-[10px] uppercase font-bold tracking-widest">
                         <tr>
                             <th class="p-5">REF</th><th class="p-5">PRODUCTO</th>
-                            <th class="p-5 text-center">RECEPCIONADAS (+)</th>
-                            <th class="p-5 text-center">VENDIDAS (+/-)</th>
-                            <th class="p-5 text-center">STOCK</th>
+                            <th class="p-5 text-center uppercase">Recepcionadas (+)</th>
+                            <th class="p-5 text-center uppercase">Vendidas (+/-)</th>
+                            <th class="p-5 text-center uppercase">Stock</th>
                             <th class="p-5 text-center">PEDIR</th>
                         </tr>
                     </thead>
@@ -118,7 +118,7 @@
         }
 
         async function abrirStock(nombre) {
-            lineaActiva = nombre;
+            lineaActiva = nombre; // IMPORTANTE: Guardamos la sección aquí
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = nombre;
@@ -160,9 +160,10 @@
             });
         }
 
+        // FUNCION BOTON + ARREGLADA
         async function controlPopUp(id, tipo, signo) {
             const valor = prompt("¿CUÁNTAS UNIDADES?");
-            if (valor && !isNaN(valor)) {
+            if (valor !== null && valor !== "" && !isNaN(valor)) {
                 const total = parseInt(valor) * signo;
                 await fetch(`${RUTA_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
                 renderTablaStock();
@@ -174,22 +175,36 @@
             renderTablaStock();
         }
 
+        // FUNCION AÑADIR ARREGLADA
         async function guardarNuevoProducto() {
-            const ref = document.getElementById('new-ref').value.toUpperCase();
-            const desc = document.getElementById('new-desc').value.toUpperCase();
+            const ref = document.getElementById('new-ref').value.trim().toUpperCase();
+            const desc = document.getElementById('new-desc').value.trim().toUpperCase();
             const col = document.getElementById('new-color').value;
             const stock = document.getElementById('new-stock-ini').value || 0;
+            
             if(!ref || !desc) return alert("FALTA REF O MUEBLE");
+            
             await fetch(`${RUTA_API}/stock/agregar`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ seccion: lineaActiva, ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
+                body: JSON.stringify({ 
+                    seccion: lineaActiva, 
+                    ref: ref, 
+                    descripcion: desc, 
+                    color: col, 
+                    recepcionadas: parseInt(stock), 
+                    vendido: 0 
+                })
             });
-            alert("GUARDADO"); renderTablaStock();
-            document.getElementById('new-ref').value = ''; document.getElementById('new-desc').value = '';
+            
+            alert("GUARDADO CORRECTAMENTE"); 
+            renderTablaStock();
+            document.getElementById('new-ref').value = ''; 
+            document.getElementById('new-desc').value = '';
+            document.getElementById('new-stock-ini').value = '';
         }
 
         async function lanzarPedido(ref, desc, color) {
-            const cliente = prompt("¿CLIENTE?");
+            const cliente = prompt("¿NOMBRE DEL CLIENTE?");
             if (!cliente) return;
             await fetch(`${RUTA_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
