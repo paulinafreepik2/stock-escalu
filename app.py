@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_pymongo import PyMongo
 from flask_cors import CORS
 from bson import ObjectId
@@ -46,20 +46,29 @@ def delete_product(id):
 @app.route('/stock/importar', methods=['POST'])
 def importar_excel():
     try:
-        if 'file' not in request.files: return jsonify({"error": "No file"}), 400
         file = request.files['file']
         df = pd.read_excel(file)
-        # Limpieza de datos
         df['vendido'] = df['vendido'].fillna(0).astype(int)
         df['recepcionadas'] = df['recepcionadas'].fillna(0).astype(int)
-        df['ref'] = df['ref'].astype(str).str.upper()
-        df['seccion'] = df['seccion'].astype(str).str.upper()
-        
         datos = df.to_dict(orient='records')
         mongo.db.stock.insert_many(datos)
-        return jsonify({"msg": f"¡Éxito! {len(datos)} productos cargados."})
+        return jsonify({"msg": "¡Carga masiva completada!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# --- NUEVA FUNCIÓN PARA DESCARGAR ---
+@app.route('/stock/descargar', methods=['GET'])
+def descargar_excel():
+    productos = list(mongo.db.stock.find({}, {"_id": 0})) # Traemos todo menos el ID raro de Mongo
+    df = pd.DataFrame(productos)
+    
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Inventario_IMMINENT')
+    
+    output.seek(0)
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                     as_attachment=True, download_name='Stock_Imminent_Real.xlsx')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
