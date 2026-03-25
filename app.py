@@ -82,13 +82,13 @@ def eliminar_pedido(id):
 
 @app.route('/pedidos/descargar', methods=['GET'])
 def descargar_pedidos():
-    pedidos = list(mongo.db.pedidos.find({}, {"_id": 0}))
+pedidos = list(mongo.db.pedidos.find({"estado": {"$ne": "finalizado"}}, {"_id": 0}))
     df = pd.DataFrame(pedidos)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Pedidos')
     output.seek(0)
     return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Pedidos_Clientes.xlsx')
-
+pedidos = list(mongo.db.pedidos.find({"estado": {"$ne": "finalizado"}}))
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
