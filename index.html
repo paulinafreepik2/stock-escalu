@@ -2,73 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IMMINENT STOCK PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMMINENT STOCK</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         .modo-cliente .solo-admin { display: none !important; }
-        .badge-cambrian { background-color: #926239; color: white; }
-        .badge-blanco { background-color: #ffffff; color: #000; font-weight: bold; border: 1px solid #ccc; }
-        .badge-tibet { background-color: #57534e; color: white; }
-        .badge-roble { background-color: #b38b59; color: white; }
-        .badge-mix { background: linear-gradient(135deg, #926239 50%, #ffffff 50%); color: #000; border: 1px solid #666; }
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; text-transform: uppercase; font-weight: 800; display: inline-block; }
-        .btn-stock { width: 36px; height: 36px; border-radius: 10px; font-weight: bold; font-size: 20px; color: white; }
-        .btn-stock:active { transform: scale(0.9); }
+        .modo-cliente .col-pedido { display: none !important; }
+        .solo-sofas #btn-volver-menu { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans text-sm">
-    <div class="max-w-[1400px] mx-auto p-2 md:p-4">
+    <div class="max-w-6xl mx-auto p-2 md:p-4">
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
             <h1 class="text-4xl font-black mb-6 italic tracking-tighter text-white">IMMINENT</h1>
-            <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-950 border border-slate-700 text-center text-white text-xl font-bold mb-4 outline-none">
-            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg transition active:bg-blue-700">Entrar</button>
+            <input id="input-pass" type="password" placeholder="Clave" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl uppercase">
+            <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
             <header class="mb-10 text-center">
-                <h1 class="text-7xl font-black italic tracking-tighter text-white">IMMINENT</h1>
-                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase"></p>
+                <h1 class="text-6xl font-black italic text-white tracking-tighter">IMMINENT</h1>
+                <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-xs"></p>
             </header>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10 px-2">
-                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 rounded-3xl font-bold text-xl shadow-lg">🌲 DAKOTA</button>
-                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-8 rounded-3xl font-bold text-xl shadow-lg">🌅 DIURNO</button>
-                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 rounded-3xl font-bold text-xl shadow-lg">🌙 NOCTURNO</button>
-                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🛋️ SOFÁS</button>
-                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg">📦 ELIAS</button>
-                <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+                <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-6 rounded-2xl font-bold shadow-lg text-lg">🌲 DAKOTA</button>
+                <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-6 rounded-2xl font-bold shadow-lg text-lg">🌅 DIURNO</button>
+                <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-6 rounded-2xl font-bold shadow-lg text-lg">🌙 NOCTURNO</button>
+                <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-6 rounded-2xl font-bold shadow-lg text-lg">🛋️ SOFÁS</button>
+                <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-6 rounded-2xl font-bold shadow-lg text-lg">📦 ELIAS</button>
+                <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-6 rounded-2xl font-bold shadow-lg text-lg border-2 border-emerald-400">📝 PEDIDOS</button>
             </div>
         </div>
 
         <div id="vista-stock" class="hidden">
-            <div class="solo-admin bg-slate-800 p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
-                <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ PRODUCTO NUEVO EN <span id="nombre-linea-form"></span></h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <input id="new-ref" placeholder="REF" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white font-bold outline-none">
-                    <input id="new-desc" placeholder="MUEBLE" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white outline-none">
-                    <select id="new-color" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white font-bold outline-none">
-                        <option value="CAMBRIAN">CAMBRIAN</option><option value="BLANCO">BLANCO</option><option value="TIBET">TIBET</option><option value="ROBLE">ROBLE</option><option value="ROBLE/BLANCO">ROBLE/BLANCO</option><option value="CAMBRIAN/BLANCO">CAMBRIAN/BLANCO</option><option value="CAMBRIAN/PIZARRA">CAMBRIAN/PIZARRA</option>
-                    </select>
-                    <input id="new-stock-ini" type="number" placeholder="CANT." class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white outline-none">
-                    <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">Añadir</button>
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4">
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                    <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
+                    <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar producto..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
+                    <button id="btn-volver-menu" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
                 </div>
             </div>
-
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4 flex justify-between items-center gap-4 shadow-xl">
-                <h2 id="titulo-linea" class="text-3xl font-black text-yellow-500 italic uppercase ml-2"></h2>
-                <input id="buscador" onkeyup="filtrar()" placeholder="🔎 BUSCAR..." class="flex-grow max-w-2xl p-4 rounded-2xl bg-slate-900 border border-slate-600 text-white font-bold outline-none">
-                <button onclick="volverAlMenu()" class="bg-slate-700 px-8 py-4 rounded-2xl font-bold uppercase text-xs">VOLVER</button>
-            </div>
-
-            <div class="bg-slate-800 rounded-[2rem] border border-slate-700 overflow-hidden shadow-2xl">
+            <div class="bg-slate-800 rounded-3xl border border-slate-700 overflow-hidden shadow-2xl">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-700/50 text-slate-400 text-xs uppercase tracking-tighter font-bold">
+                    <thead class="bg-slate-700 text-slate-400 text-[10px] uppercase">
                         <tr>
-                            <th class="p-5">REF</th><th class="p-5">MUEBLE</th><th class="p-5">COLOR</th>
-                            <th class="p-5 text-center">RECIBIDAS (VENTANA)</th><th class="p-5 text-center">VENDIDAS (+/-)</th>
-                            <th class="p-5 text-center text-yellow-500 font-black">STOCK</th><th class="p-5 text-center col-pedido">PEDIR</th>
+                            <th class="p-4">REF</th><th class="p-4">DESC</th><th class="p-4 text-center">STOCK</th><th class="p-4 text-center col-pedido">PEDIR</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpo-tabla" class="divide-y divide-slate-700"></tbody>
@@ -77,17 +56,19 @@
         </div>
 
         <div id="vista-pedidos" class="hidden">
-            <div class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
-                <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
-                    <h2 class="text-4xl font-black text-emerald-400 italic">📝 PEDIDOS</h2>
-                    <div class="flex gap-3">
-                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">📜 Historial</button>
-                        <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs">VOLVER</button>
+            <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700">
+                <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+                    <h2 id="titulo-pedidos" class="text-3xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS</h2>
+                    <div class="flex gap-2">
+                        <input id="busc-pedidos" onkeyup="filtrarPedidos()" placeholder="🔎 Buscar..." class="p-2 rounded-xl bg-slate-900 border border-slate-600 text-xs text-white">
+                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase">📜 Ver Historial</button>
+                        <button onclick="volverAlMenu()" class="bg-slate-700 px-4 py-2 rounded-xl font-bold text-[10px]">VOLVER</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead id="cabecera-pedidos" class="bg-slate-700/50 text-slate-400 text-xs uppercase"></thead>
+                        <thead id="cabecera-pedidos" class="bg-slate-700 text-slate-400 text-[10px] uppercase">
+                            </thead>
                         <tbody id="cuerpo-pedidos" class="divide-y divide-slate-700"></tbody>
                     </table>
                 </div>
@@ -96,24 +77,15 @@
     </div>
 
     <script>
-        const API = "https://stock-escalu-app.onrender.com";
         let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = [];
-
-        function getClaseColor(color) {
-            if (!color) return 'bg-slate-700';
-            const c = color.toUpperCase();
-            if (c === 'CAMBRIAN') return 'badge-cambrian';
-            if (c === 'BLANCO') return 'badge-blanco';
-            if (c === 'TIBET') return 'badge-tibet';
-            if (c === 'ROBLE') return 'badge-roble';
-            if (c.includes('/')) return 'badge-mix';
-            return 'bg-slate-700';
-        }
+        const URL_API = "https://stock-escalu-app.onrender.com";
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMIN"); }
-            else { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
+            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente','solo-sofas'); entrar("ADMIN"); }
+            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente','solo-sofas'); entrar("SOFÁS"); cargarStock('SOFAS'); }
+            else if (pass === 'INVITADO') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
+            else { alert("❌ Incorrecta"); }
         }
 
         function entrar(txt) {
@@ -127,162 +99,81 @@
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = seccion;
-            document.getElementById('nombre-linea-form').innerText = seccion;
-            
-            const res = await fetch(`${API}/stock/${seccion}`);
+            const res = await fetch(`${URL_API}/stock/${seccion}`);
             const datos = await res.json();
             const tabla = document.getElementById('cuerpo-tabla');
             tabla.innerHTML = '';
-            
             datos.forEach(m => {
-                const actual = m.recepcionadas - m.vendido;
-                tabla.innerHTML += `
-                <tr class="font-bold border-slate-700">
-                    <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
-                    <td class="p-5 uppercase text-slate-200 text-sm">${m.descripcion}</td>
-                    <td class="p-5"><span class="tag ${getClaseColor(m.color)}">${m.color}</span></td>
-                    <td class="p-5">
-                        <div class="flex items-center justify-center gap-3">
-                            <button onclick="ventanaStock('${m._id}', 'rec', -1)" class="solo-admin btn-stock bg-red-900 border border-red-700">-</button>
-                            <span class="w-10 text-center text-xl font-black">${m.recepcionadas}</span>
-                            <button onclick="ventanaStock('${m._id}', 'rec', 1)" class="solo-admin btn-stock bg-emerald-700 border border-emerald-500">+</button>
-                        </div>
-                    </td>
-                    <td class="p-5">
-                        <div class="flex items-center justify-center gap-3">
-                            <button onclick="manualStock('${m._id}', 'ven', -1)" class="solo-admin btn-stock bg-red-900 border border-red-700">-</button>
-                            <span class="w-10 text-center text-xl font-black">${m.vendido}</span>
-                            <button onclick="manualStock('${m._id}', 'ven', 1)" class="solo-admin btn-stock bg-emerald-700 border border-emerald-500">+</button>
-                        </div>
-                    </td>
-                    <td class="p-5 text-center text-3xl text-yellow-500 font-black">${actual}</td>
-                    <td class="p-5 text-center col-pedido">
-                        <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-5 py-3 rounded-xl text-[10px] font-black shadow-lg">🛒 PEDIR</button>
-                    </td>
-                </tr>`;
+                const stock = m.recepcionadas - m.vendido;
+                tabla.innerHTML += `<tr class="font-bold text-xs"><td class="p-4 text-blue-400 font-mono">${m.ref}</td><td class="p-4 uppercase">${m.descripcion} (${m.color})</td><td class="p-4 text-center text-lg">${stock}</td><td class="p-4 text-center col-pedido"><button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-3 py-1 rounded-lg text-[9px] uppercase">🛒 Pedir</button></td></tr>`;
             });
-        }
-
-        async function ventanaStock(id, tipo, signo) {
-            let num = prompt("¿CUÁNTAS UNIDADES?");
-            if (num != null && num != "" && !isNaN(num)) {
-                let valor = parseInt(num) * signo;
-                await fetch(`${API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
-                cargarStock(seccionActual);
-            }
-        }
-
-        async function manualStock(id, tipo, valor) {
-            await fetch(`${API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
-            cargarStock(seccionActual);
         }
 
         async function anotarPedido(ref, desc, color) {
-            const cliente = prompt("¿NOMBRE DEL CLIENTE?");
+            const cliente = prompt("¿Nombre del Cliente?");
             if (!cliente) return;
-            await fetch(`${API}/pedidos/crear`, {
+            await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("ANOTADO EN PEDIDOS");
+            alert("Anotado!");
         }
 
         async function verPedidos() {
             viendoHistorial = false;
-            document.getElementById('menu-secciones').classList.add('hidden');
-            document.getElementById('vista-pedidos').classList.remove('hidden');
+            document.getElementById('titulo-pedidos').innerText = "📝 PEDIDOS ACTIVOS";
             document.getElementById('btn-toggle-historial').innerText = "📜 Ver Historial";
-            document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">PRODUCTO</th><th class="p-5 text-center">CANT</th><th class="p-5 text-center">LISTO</th></tr>`;
-            
-            const res = await fetch(`${API}/pedidos`);
-            pedidosCache = await res.json();
-            const tabla = document.getElementById('cuerpo-pedidos');
-            tabla.innerHTML = '';
-            pedidosCache.forEach(p => {
-                tabla.innerHTML += `<tr class="font-bold border-slate-700">
-                    <td class="p-5 text-emerald-400 text-lg uppercase">${p.cliente}</td>
-                    <td class="p-5 text-xs uppercase text-slate-400">${p.descripcion} (${p.ref})</td>
-                    <td class="p-5 text-center text-xl">${p.cantidad || 1}</td>
-                    <td class="p-5 text-center"><button onclick="terminar('${p._id}')" class="text-3xl">✅</button></td>
-                </tr>`;
-            });
+            document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">MUEBLE</th><th class="p-4 text-center">CANT</th><th class="p-4 text-center">OK</th></tr>`;
+            renderizarPedidos(`${URL_API}/pedidos`);
         }
 
         async function toggleHistorial() {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
+                document.getElementById('titulo-pedidos').innerText = "📜 CLIENTES EN HISTORIAL";
                 document.getElementById('btn-toggle-historial').innerText = "📝 Ver Activos";
-                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">RESUMEN</th><th class="p-5 text-center">EXCEL</th></tr>`;
-                
-                const res = await fetch(`${API}/pedidos/historial`);
-                pedidosCache = await res.json();
-                const tabla = document.getElementById('cuerpo-pedidos');
-                tabla.innerHTML = '';
-                const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
-                clientes.forEach(c => {
-                    const bultos = pedidosCache.filter(p => p.cliente.toUpperCase() === c).length;
-                    tabla.innerHTML += `<tr class="font-bold border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="descargarExcel('${c}')">
-                        <td class="p-5 text-emerald-400 text-lg uppercase">${c}</td>
-                        <td class="p-5 text-slate-500 italic">${bultos} muebles entregados</td>
-                        <td class="p-5 text-center"><button class="bg-green-700 px-4 py-2 rounded-lg text-[10px] font-black uppercase">📥 EXCEL</button></td>
-                    </tr>`;
-                });
+                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-4">CLIENTE</th><th class="p-4">ESTADO</th><th class="p-4 text-center">ACCIÓN</th></tr>`;
+                renderizarPedidos(`${URL_API}/pedidos/historial`);
             } else { verPedidos(); }
         }
 
-        function descargarExcel(cliente) {
-            const lista = pedidosCache.filter(p => p.cliente.toUpperCase() === cliente).map(p => ({ FECHA: p.fecha, REF: p.ref, DESC: p.descripcion, COLOR: p.color, CANT: p.cantidad }));
-            const ws = XLSX.utils.json_to_sheet(lista);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "PEDIDO");
-            XLSX.writeFile(wb, `Albaran_${cliente}.xlsx`);
+        async function renderizarPedidos(url) {
+            document.getElementById('menu-secciones').classList.add('hidden');
+            document.getElementById('vista-pedidos').classList.remove('hidden');
+            const res = await fetch(url);
+            pedidosCache = await res.json();
+            const tabla = document.getElementById('cuerpo-pedidos');
+            tabla.innerHTML = '';
+
+            if (viendoHistorial) {
+                const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
+                clientes.forEach(c => {
+                    const cant = pedidosCache.filter(p => p.cliente === c).length;
+                    tabla.innerHTML += `<tr class="font-bold text-xs border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="verDetalle('${c}')"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${c}</td><td class="p-4 text-slate-500 italic">Tiene ${cant} pedidos realizados</td><td class="p-4 text-center"><button class="bg-blue-600 px-3 py-1 rounded text-[10px]">VER TODO</button></td></tr>`;
+                });
+            } else {
+                pedidosCache.forEach(p => {
+                    const cant = p.cantidad || 1;
+                    tabla.innerHTML += `<tr class="font-bold text-xs"><td class="p-4 text-emerald-400 uppercase cliente-nombre">${p.cliente}</td><td class="p-4 uppercase text-slate-400">${p.descripcion} (${p.ref})</td><td class="p-4 text-center"><div class="flex items-center justify-center gap-2"><button onclick="ajustar('${p._id}',${cant},-1)" class="bg-slate-700 w-6 h-6 rounded">-</button><span>${cant}</span><button onclick="ajustar('${p._id}',${cant},1)" class="bg-emerald-600 w-6 h-6 rounded">+</button></div></td><td class="p-4 text-center"><button onclick="terminar('${p._id}')" class="text-xl">✅</button></td></tr>`;
+                });
+            }
+        }
+
+        function verDetalle(cliente) {
+            const lista = pedidosCache.filter(p => p.cliente === cliente);
+            let txt = `HISTORIAL DE ${cliente}:\n\n`;
+            lista.forEach(p => txt += `• ${p.fecha}: ${p.descripcion} (${p.ref}) x${p.cantidad}\n`);
+            alert(txt);
+        }
+
+        async function ajustar(id, actual, cambio) {
+            const nueva = Math.max(1, actual + cambio);
+            await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nueva}`, { method: 'PUT' });
+            verPedidos();
         }
 
         async function terminar(id) {
-            if (confirm("¿Pedido entregado?")) { await fetch(`${API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); }
-        }
-
-        async function guardarNuevoProducto() {
-            const refInput = document.getElementById('new-ref');
-            const descInput = document.getElementById('new-desc');
-            const colorInput = document.getElementById('new-color');
-            const stockInput = document.getElementById('new-stock-ini');
-
-            const ref = refInput.value.toUpperCase();
-            const desc = descInput.value.toUpperCase();
-            const col = colorInput.value;
-            const stock = stockInput.value || 0;
-
-            if(!ref) return alert("FALTA REF");
-
-            try {
-                const res = await fetch(`${API}/stock/agregar`, {
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        seccion: seccionActual, 
-                        ref, 
-                        descripcion: desc, 
-                        color: col, 
-                        recepcionadas: parseInt(stock), 
-                        vendido: 0 
-                    })
-                });
-
-                if (res.ok) {
-                    alert("GUARDADO");
-                    // Limpiar campos tras guardar
-                    refInput.value = "";
-                    descInput.value = "";
-                    stockInput.value = "";
-                    cargarStock(seccionActual);
-                } else {
-                    alert("Error al guardar el producto");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Error de conexión");
-            }
+            if (confirm("¿Pedido entregado?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); }
         }
 
         function volverAlMenu() {
@@ -294,6 +185,12 @@
         function filtrar() {
             let f = document.getElementById('buscador').value.toUpperCase();
             let filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; }
+        }
+
+        function filtrarPedidos() {
+            let f = document.getElementById('busc-pedidos').value.toUpperCase();
+            let filas = document.getElementById('cuerpo-pedidos').getElementsByTagName('tr');
             for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; }
         }
     </script>
