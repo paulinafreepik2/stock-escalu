@@ -4,6 +4,7 @@ from flask_cors import CORS
 from bson import ObjectId
 import pandas as pd
 import io
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -15,11 +16,11 @@ mongo = PyMongo(app)
 def home():
     return "Servidor ESCALU OK"
 
+# --- RUTAS DE STOCK ---
 @app.route('/stock/<seccion>', methods=['GET'])
 def get_stock(seccion):
     productos = list(mongo.db.stock.find({"seccion": seccion}))
-    for p in productos:
-        p['_id'] = str(p['_id'])
+    for p in productos: p['_id'] = str(p['_id'])
     return jsonify(productos)
 
 @app.route('/stock/agregar', methods=['POST'])
@@ -43,32 +44,44 @@ def delete_product(id):
     mongo.db.stock.delete_one({"_id": ObjectId(id)})
     return jsonify({"msg": "OK"})
 
-@app.route('/stock/importar', methods=['POST'])
-def importar_excel():
-    try:
-        file = request.files['file']
-        df = pd.read_excel(file)
-        df['vendido'] = df['vendido'].fillna(0).astype(int)
-        df['recepcionadas'] = df['recepcionadas'].fillna(0).astype(int)
-        datos = df.to_dict(orient='records')
-        mongo.db.stock.insert_many(datos)
-        return jsonify({"msg": "¡Carga masiva completada!"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# --- NUEVA FUNCIÓN PARA DESCARGAR ---
 @app.route('/stock/descargar', methods=['GET'])
 def descargar_excel():
-    productos = list(mongo.db.stock.find({}, {"_id": 0})) # Traemos todo menos el ID raro de Mongo
+    productos = list(mongo.db.stock.find({}, {"_id": 0}))
     df = pd.DataFrame(productos)
-    
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Inventario_IMMINENT')
-    
+        df.to_excel(writer, index=False, sheet_name='Stock')
     output.seek(0)
-    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
-                     as_attachment=True, download_name='Stock_Imminent_Real.xlsx')
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Stock_Real.xlsx')
+
+# --- RUTAS DE PEDIDOS (NUEVO) ---
+@app.route('/pedidos', methods=['GET'])
+def get_pedidos():
+    pedidos = list(mongo.db.pedidos.find())
+    for p in pedidos: p['_id'] = str(p['_id'])
+    return jsonify(pedidos)
+
+@app.route('/pedidos/crear', methods=['POST'])
+def crear_pedido():
+    data = request.json
+    data["fecha"] = datetime.now().strftime("%d/%m/%Y")
+    mongo.db.pedidos.insert_one(data)
+    return jsonify({"msg": "Pedido anotado"})
+
+@app.route('/pedidos/eliminar/<id>', methods=['DELETE'])
+def eliminar_pedido(id):
+    mongo.db.pedidos.delete_one({"_id": ObjectId(id)})
+    return jsonify({"msg": "Pedido borrado"})
+
+@app.route('/pedidos/descargar', methods=['GET'])
+def descargar_pedidos():
+    pedidos = list(mongo.db.pedidos.find({}, {"_id": 0}))
+    df = pd.DataFrame(pedidos)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Pedidos_Clientes')
+    output.seek(0)
+    return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', as_attachment=True, download_name='Lista_Pedidos.xlsx')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
