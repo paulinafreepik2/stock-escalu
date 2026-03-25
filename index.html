@@ -243,16 +243,46 @@
         }
 
         async function guardarNuevoProducto() {
-            const ref = document.getElementById('new-ref').value.toUpperCase();
-            const desc = document.getElementById('new-desc').value.toUpperCase();
-            const col = document.getElementById('new-color').value;
-            const stock = document.getElementById('new-stock-ini').value || 0;
+            const refInput = document.getElementById('new-ref');
+            const descInput = document.getElementById('new-desc');
+            const colorInput = document.getElementById('new-color');
+            const stockInput = document.getElementById('new-stock-ini');
+
+            const ref = refInput.value.toUpperCase();
+            const desc = descInput.value.toUpperCase();
+            const col = colorInput.value;
+            const stock = stockInput.value || 0;
+
             if(!ref) return alert("FALTA REF");
-            await fetch(`${API}/stock/agregar`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ seccion: seccionActual, ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
-            });
-            alert("GUARDADO"); cargarStock(seccionActual);
+
+            try {
+                const res = await fetch(`${API}/stock/agregar`, {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        seccion: seccionActual, 
+                        ref, 
+                        descripcion: desc, 
+                        color: col, 
+                        recepcionadas: parseInt(stock), 
+                        vendido: 0 
+                    })
+                });
+
+                if (res.ok) {
+                    alert("GUARDADO");
+                    // Limpiar campos tras guardar
+                    refInput.value = "";
+                    descInput.value = "";
+                    stockInput.value = "";
+                    cargarStock(seccionActual);
+                } else {
+                    alert("Error al guardar el producto");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error de conexión");
+            }
         }
 
         function volverAlMenu() {
