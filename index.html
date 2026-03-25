@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMMINENT STOCK - RESTAURADO</title>
+    <title>IMMINENT STOCK - OK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -26,16 +26,16 @@
         
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-slate-800 p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
             <h1 class="text-4xl font-black mb-6 italic tracking-tighter">IMMINENT</h1>
-            <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl uppercase font-bold outline-none">
+            <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-600 mb-4 text-center text-white text-xl font-bold outline-none">
             <button onclick="verificar()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-xl uppercase shadow-lg active:scale-95 transition">Entrar</button>
         </div>
 
         <div id="menu-secciones" class="hidden text-center">
-            <header class="mb-10">
-                <h1 class="text-7xl font-black italic tracking-tighter">IMMINENT</h1>
+            <header class="mb-10 text-center">
+                <h1 class="text-7xl font-black italic tracking-tighter text-white">IMMINENT</h1>
                 <p id="txt-bienvenida" class="text-slate-400 font-bold mt-2 uppercase bg-slate-800 inline-block px-4 py-1 rounded-full text-xs"></p>
             </header>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10 px-2">
                 <button onclick="cargarStock('DAKOTA')" class="bg-orange-800 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌲 DAKOTA</button>
                 <button onclick="cargarStock('DIURNO')" class="bg-sky-600 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌅 DIURNO</button>
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 rounded-3xl font-bold text-xl shadow-lg hover:brightness-110">🌙 NOCTURNO</button>
@@ -47,7 +47,7 @@
 
         <div id="vista-stock" class="hidden">
             <div class="solo-admin bg-slate-800 p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
-                <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ NUEVO PRODUCTO EN <span id="nombre-linea-form"></span></h3>
+                <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ PRODUCTO NUEVO EN <span id="nombre-linea-form"></span></h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <input id="new-ref" placeholder="REF" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white uppercase font-bold outline-none">
                     <input id="new-desc" placeholder="DESCRIPCIÓN" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white uppercase outline-none">
@@ -63,20 +63,20 @@
                         <option value="BLANCO/PIZARRA">BLANCO/PIZARRA</option>
                         <option value="ROBLE/RAYADO">ROBLE/RAYADO</option>
                     </select>
-                    <input id="new-stock" type="number" placeholder="CANTIDAD" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white outline-none">
+                    <input id="new-stock" type="number" placeholder="STOCK INICIAL" class="bg-slate-900 p-3 rounded-xl border border-slate-600 text-white outline-none">
                     <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase hover:bg-emerald-500 shadow-lg transition">Guardar</button>
                 </div>
             </div>
 
             <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 mb-4 flex justify-between items-center gap-4">
-                <h2 id="titulo-linea" class="text-3xl font-black text-yellow-500 italic uppercase"></h2>
+                <h2 id="titulo-linea" class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase"></h2>
                 <input id="buscador" onkeyup="filtrar()" placeholder="🔎 BUSCAR..." class="flex-grow max-w-2xl p-4 rounded-2xl bg-slate-900 border border-slate-600 text-white font-bold outline-none">
-                <button onclick="volverAlMenu()" class="bg-slate-700 px-8 py-4 rounded-2xl font-bold uppercase text-xs hover:bg-slate-600">VOLVER</button>
+                <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-4 rounded-2xl font-bold uppercase text-xs hover:bg-slate-600 transition">VOLVER</button>
             </div>
 
             <div class="bg-slate-800 rounded-[2rem] border border-slate-700 overflow-hidden shadow-2xl">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-700/50 text-slate-400 text-xs uppercase tracking-tighter">
+                    <thead class="bg-slate-700/50 text-slate-400 text-xs uppercase">
                         <tr>
                             <th class="p-5">REF</th>
                             <th class="p-5">DESCRIPCIÓN</th>
@@ -95,10 +95,10 @@
         <div id="vista-pedidos" class="hidden">
             <div class="bg-slate-800 p-6 rounded-[2rem] border border-slate-700 shadow-2xl">
                 <div class="flex flex-wrap justify-between items-center mb-8 gap-4">
-                    <h2 id="titulo-pedidos" class="text-4xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS</h2>
+                    <h2 class="text-4xl font-black text-emerald-400 italic uppercase">📝 PEDIDOS</h2>
                     <div class="flex gap-3">
-                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">📜 Historial</button>
-                        <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs hover:bg-slate-600">VOLVER</button>
+                        <button id="btn-toggle-historial" onclick="toggleHistorial()" class="bg-purple-600 px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-purple-500 transition">📜 Historial</button>
+                        <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs hover:bg-slate-600 transition">VOLVER</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
@@ -129,8 +129,8 @@
 
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMIN"); }
-            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("SOFÁS"); cargarStock('SOFAS'); }
+            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMINISTRADOR"); }
+            else if (pass === 'SOFAS') { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("SECCIÓN SOFÁS"); cargarStock('SOFAS'); }
             else { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
         }
 
@@ -161,39 +161,44 @@
                         <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
                         <td class="p-5 uppercase text-slate-200 text-sm">${m.descripcion}</td>
                         <td class="p-5 uppercase"><span class="tag ${claseCol}">${m.color}</span></td>
+                        
                         <td class="p-5">
                             <div class="flex items-center justify-center gap-3">
-                                <button onclick="cambiarConPrompt('${m._id}', 'rec', -1)" class="solo-admin btn-stock bg-red-900 text-white border border-red-700">-</button>
+                                <button onclick="ventanaStock('${m._id}', 'rec', -1)" class="solo-admin btn-stock bg-red-900 text-white border border-red-700">-</button>
                                 <span class="w-10 text-center text-xl font-black">${m.recepcionadas}</span>
-                                <button onclick="cambiarConPrompt('${m._id}', 'rec', 1)" class="solo-admin btn-stock bg-emerald-700 text-white border border-emerald-500">+</button>
+                                <button onclick="ventanaStock('${m._id}', 'rec', 1)" class="solo-admin btn-stock bg-emerald-700 text-white border border-emerald-500">+</button>
                             </div>
                         </td>
+
                         <td class="p-5">
                             <div class="flex items-center justify-center gap-3">
-                                <button onclick="cambiarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-stock bg-red-900 text-white border border-red-700">-</button>
+                                <button onclick="manualStock('${m._id}', 'ven', -1)" class="solo-admin btn-stock bg-red-900 text-white border border-red-700">-</button>
                                 <span class="w-10 text-center text-xl font-black">${m.vendido}</span>
-                                <button onclick="cambiarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-stock bg-emerald-700 text-white border border-emerald-500">+</button>
+                                <button onclick="manualStock('${m._id}', 'ven', 1)" class="solo-admin btn-stock bg-emerald-700 text-white border border-emerald-500">+</button>
                             </div>
                         </td>
+
                         <td class="p-5 text-center text-3xl text-yellow-500 font-black">${actual}</td>
                         <td class="p-5 text-center col-pedido">
-                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-5 py-3 rounded-xl text-[10px] font-black shadow-lg">🛒 PEDIR</button>
+                            <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-5 py-3 rounded-xl text-[10px] font-black shadow-lg hover:bg-emerald-500 transition">🛒 PEDIR</button>
                         </td>
                     </tr>`;
                 });
-            } catch (e) { alert("Error cargando muebles. Reintenta."); }
+            } catch (e) { console.error(e); }
         }
 
-        async function cambiarConPrompt(id, tipo, signo) {
+        // FUNCIÓN VENTANA EMERGENTE (ARREGLADA)
+        async function ventanaStock(id, tipo, signo) {
             const num = prompt("¿CUÁNTAS UNIDADES?", "1");
-            if (num && !isNaN(num)) {
-                const final = parseInt(num) * signo;
-                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${final}`, { method: 'PUT' });
+            if (num !== null && !isNaN(num) && num !== "") {
+                const total = parseInt(num) * signo;
+                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
                 cargarStock(seccionActual);
             }
         }
 
-        async function cambiarDirecto(id, tipo, valor) {
+        // FUNCIÓN MANUAL +/- 1
+        async function manualStock(id, tipo, valor) {
             await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
             cargarStock(seccionActual);
         }
@@ -203,12 +208,13 @@
             const desc = document.getElementById('new-desc').value.toUpperCase();
             const col = document.getElementById('new-color').value;
             const stock = document.getElementById('new-stock').value || 0;
-            if(!ref || !desc) return alert("FALTA REF O DESCRIPCION");
+            if(!ref || !desc) return alert("FALTA REF O DESCRIPCIÓN");
             await fetch(`${URL_API}/stock/agregar`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ seccion: seccionActual, ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
             });
-            alert("GUARDADO"); cargarStock(seccionActual);
+            alert("¡GUARDADO!"); 
+            cargarStock(seccionActual);
             document.getElementById('new-ref').value = ''; document.getElementById('new-desc').value = '';
         }
 
@@ -233,7 +239,7 @@
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
                 document.getElementById('btn-toggle-historial').innerText = "📝 Ver Activos";
-                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">RESUMEN</th><th class="p-5 text-center">EXCEL</th></tr>`;
+                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">RESUMEN</th><th class="p-5 text-center">ALBARÁN</th></tr>`;
                 renderizarPedidos(`${URL_API}/pedidos/historial`);
             } else { verPedidos(); }
         }
@@ -253,7 +259,7 @@
                     tabla.innerHTML += `<tr class="font-bold border-slate-700 hover:bg-slate-800 cursor-pointer" onclick="descargarExcelCliente('${c}')">
                         <td class="p-5 text-emerald-400 text-lg uppercase">${c}</td>
                         <td class="p-5 text-slate-500 italic">${bultos} bultos entregados</td>
-                        <td class="p-5 text-center"><button class="bg-green-700 px-4 py-2 rounded-lg text-xs font-black">📥 Descargar</button></td>
+                        <td class="p-5 text-center"><button class="bg-green-700 px-4 py-2 rounded-lg text-xs font-black">📥 EXCEL</button></td>
                     </tr>`;
                 });
             } else {
@@ -280,7 +286,7 @@
         }
 
         async function terminar(id) {
-            if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); }
+            if (confirm("¿PEDIDO ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); }
         }
 
         function volverAlMenu() {
