@@ -6,9 +6,11 @@
     <title>STOCK IMMINENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Reglas de seguridad: OCULTAR según el modo */
+        /* Reglas de seguridad */
         .modo-cliente .solo-admin { display: none !important; }
         .modo-cliente .col-pedido { display: none !important; }
+        /* Si entra con SOFAS, ocultamos el botón de volver para que no cotillee el menú */
+        .solo-sofas #btn-volver-menu { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans text-sm">
@@ -50,7 +52,7 @@
                 <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
                     <h2 id="titulo-linea" class="text-2xl font-black text-yellow-500 italic uppercase"></h2>
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar producto..." class="flex-grow max-w-md p-3 rounded-xl bg-slate-900 border border-slate-600 text-white font-bold">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
+                    <button id="btn-volver-menu" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
                 </div>
                 
                 <div class="solo-admin grid grid-cols-1 md:grid-cols-5 gap-2 bg-slate-700 p-4 rounded-2xl mb-4 border border-slate-500">
@@ -118,17 +120,22 @@
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             
-            // SI ES ADMIN (TÚ)
             if (pass === '12345CUCA') { 
                 esAdmin = true; 
-                document.body.classList.remove('modo-cliente');
+                document.body.classList.remove('modo-cliente', 'solo-sofas');
                 entrar("ADMINISTRADOR"); 
             } 
-            // SI ES CLIENTE O SOFAS (VENDEDORES)
-            else if (pass === 'INVITADO' || pass === 'SOFAS') { 
+            else if (pass === 'SOFAS') { 
+                esAdmin = false; 
+                document.body.classList.add('modo-cliente', 'solo-sofas'); 
+                entrar("SECCIÓN SOFÁS");
+                cargarStock('SOFAS'); // Los manda directos aquí
+            }
+            else if (pass === 'INVITADO') { 
                 esAdmin = false; 
                 document.body.classList.add('modo-cliente'); 
-                entrar(pass); 
+                document.body.classList.remove('solo-sofas');
+                entrar("INVITADO"); 
             } 
             else { alert("❌ Clave incorrecta"); }
         }
@@ -201,7 +208,7 @@
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente, ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("Pedido anotado para " + cliente);
+            alert("Pedido anotado");
         }
 
         async function verPedidos() {
