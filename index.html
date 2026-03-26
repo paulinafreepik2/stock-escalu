@@ -44,8 +44,13 @@
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🛋️ SOFÁS</button>
                 <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg">📦 ELIAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
+                <div class="mt-8 flex justify-center solo-admin">
+                <button onclick="descargarStockTotal()" class="bg-blue-600 px-8 py-4 rounded-2xl font-black text-lg shadow-lg border-2 border-blue-400 uppercase active:scale-95 transition">
+                    💾 DESCARGAR TODO EL STOCK (Copia de Seguridad)
+                </button>
             </div>
-        </div>
+            </div>
+     
 
         <div id="vista-stock" class="hidden">
             <div class="solo-admin bg-card p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
@@ -61,9 +66,15 @@
                     </select>
                     <input id="new-stock" type="number" placeholder="CANT." class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white outline-none">
                     <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">GUARDAR</button>
+                    <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p class="text-xs text-slate-400 font-bold uppercase">📂 Subir varios de golpe desde Excel:</p>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <input type="file" id="file-import" accept=".xlsx, .xls" class="text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white cursor-pointer w-full">
+                        <button onclick="importarExcel()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold uppercase text-xs shadow-lg whitespace-nowrap">🚀 SUBIR</button>
+                    </div>
                 </div>
-            </div>
-
+                
+          
             <div class="flex justify-between items-center mb-6 px-2">
                 <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
                 <div class="flex gap-4 items-center">
@@ -355,6 +366,92 @@ async function cargarStock(seccion) {
             const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
             
             XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
+            // --- 1. FUNCIÓN PARA COPIA DE SEGURIDAD GLOBAL ---
+        async function descargarStockTotal() {
+            const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS'];
+            let stockTotal = [];
+            
+            alert("⏳ Recopilando todo el almacén... Dale a Aceptar y espera unos segundos.");
+            
+            // Recorremos todas las secciones preguntándole a la base de datos
+            for (let sec of secciones) {
+                try {
+                    const res = await fetch(`${URL_API}/stock/${sec}`);
+                    const datos = await res.json();
+                    datos.forEach(d => {
+                        stockTotal.push({
+                            SECCION: d.seccion,
+                            REF: d.ref,
+                            PRODUCTO: d.descripcion,
+                            COLOR: d.color,
+                            RECEPCIONADAS: d.recepcionadas || 0,
+                            VENDIDAS: d.vendido || 0,
+                            STOCK_REAL: (d.recepcionadas || 0) - (d.vendido || 0)
+                        });
+                    });
+                } catch (e) {
+                    console.error("Error cargando " + sec);
+                }
+            }
+            
+            if (stockTotal.length === 0) return alert("El almacén está vacío o hay un error de conexión.");
+            
+            // Creamos y descargamos el Excel
+            const ws = XLSX.utils.json_to_sheet(stockTotal);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "INVENTARIO TOTAL");
+            
+            const hoy = new Date();
+            const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
+            XLSX.writeFile(wb, `Copia_Seguridad_Imminent_${fecha}.xlsx`);
+        }
+
+        // --- 2. FUNCIÓN PARA SUBIR EXCEL DE GOLPE ---
+        async function importarExcel() {
+            const fileInput = document.getElementById('file-import');
+            if (!fileInput.files.length) return alert("⚠️ Selecciona un archivo Excel primero.");
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const filas = XLSX.utils.sheet_to_json(firstSheet);
+                
+                if (filas.length === 0) return alert("El Excel está vacío.");
+                if (!confirm(`Vas a subir ${filas.length} productos a la sección ${seccionActual}. ¿Continuar?`)) return;
+                
+                alert("⏳ Subiendo productos... No toques nada hasta que salga el aviso de completado.");
+                
+                for (let fila of filas) {
+                    // Busca las columnas en tu Excel (no importa si están en mayúsculas o minúsculas)
+                    const ref = fila.REF || fila.ref || fila.Ref || "SIN-REF";
+                    const desc = fila.MUEBLE || fila.PRODUCTO || fila.descripcion || fila.mueble || "MUEBLE";
+                    const col = fila.COLOR || fila.color || fila.Color || "DEFAULT";
+                    const stock = parseInt(fila.CANTIDAD || fila.cantidad || fila.recepcionadas || 0);
+                    
+                    await fetch(`${URL_API}/stock/agregar`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ 
+                            seccion: seccionActual, 
+                            ref: String(ref).toUpperCase(), 
+                            descripcion: String(desc).toUpperCase(), 
+                            color: String(col).toUpperCase(), 
+                            recepcionadas: isNaN(stock) ? 0 : stock, 
+                            vendido: 0 
+                        })
+                    });
+                }
+                
+                alert("✅ ¡SUBIDA COMPLETADA CON ÉXITO!");
+                fileInput.value = ""; // Limpiamos el selector de archivo
+                cargarStock(seccionActual); // Recargamos la tabla para que veas lo nuevo
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
         }</script>
 </body>
 </html>
