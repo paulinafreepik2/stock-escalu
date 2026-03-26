@@ -88,11 +88,13 @@
             </div>
         </div>
 
-        <div id="vista-pedidos" class="hidden">
+<div id="vista-pedidos" class="hidden">
             <div class="bg-card p-6 rounded-[2rem] border border-slate-800 shadow-2xl">
                 <div class="flex justify-between items-center mb-8">
                     <h2 id="titulo-pedidos" class="text-4xl font-black text-emerald-400 italic">📝 PEDIDOS</h2>
                     <div class="flex gap-3">
+                        <button onclick="descargarTodosExcel()" class="bg-blue-600 px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">📥 EXCEL GLOBAL</button>
+                        
                         <button id="btn-historial" onclick="toggleHistorial()" class="bg-purple-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">📜 VER HISTORIAL</button>
                         <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs">VOLVER</button>
                     </div>
@@ -105,7 +107,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <script>
         // VARIABLES EXACTAS A LAS QUE FUNCIONABAN AL PRINCIPIO
@@ -274,6 +275,32 @@
         async function terminar(id) { if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); } }
         function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
         function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
-    </script>
+    // NUEVA FUNCIÓN PARA DESCARGAR TODOS LOS PEDIDOS JUNTOS
+        function descargarTodosExcel() {
+            if (!pedidosCache || pedidosCache.length === 0) {
+                return alert("NO HAY PEDIDOS EN LA PANTALLA PARA DESCARGAR");
+            }
+
+            // Preparamos los datos ordenados para el Excel
+            const listaGlobal = pedidosCache.map(p => ({
+                FECHA: p.fecha || "",
+                CLIENTE: p.cliente,
+                REF: p.ref,
+                MUEBLE: p.descripcion,
+                COLOR: p.color || "",
+                CANTIDAD: p.cantidad || 1
+            }));
+
+            // Creamos el archivo Excel
+            const ws = XLSX.utils.json_to_sheet(listaGlobal);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
+            
+            // Le ponemos la fecha de hoy al nombre del archivo para que no te líes
+            const hoy = new Date();
+            const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
+            
+            XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
+        }</script>
 </body>
 </html>
