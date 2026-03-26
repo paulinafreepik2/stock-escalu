@@ -7,7 +7,8 @@ import io
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
+# BLINDAMOS EL CORS PARA QUE NO BLOQUEE LOS BOTONES
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuración de MongoDB
 app.config["MONGO_URI"] = "mongodb+srv://usuario_web:FEh8oeAhmoSPFqhn@stockescalu.mikltkh.mongodb.net/ESCALU_DB?retryWrites=true&w=majority&authSource=admin"
@@ -25,20 +26,29 @@ def get_stock(seccion):
         p['_id'] = str(p['_id'])
     return jsonify(productos)
 
-@app.route('/stock/agregar', methods=['POST'])
+@app.route('/stock/agregar', methods=['POST', 'OPTIONS'])
 def add_product():
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
     data = request.json
     mongo.db.stock.insert_one(data)
     return jsonify({"msg": "OK"})
 
-@app.route('/stock/vender/<id>', methods=['PUT'])
-def update_stock(id):
-    vendido = request.args.get('vendido')
-    recep = request.args.get('recepcionadas')
-    update_data = {}
-    if vendido is not None: update_data["vendido"] = int(vendido)
-    if recep is not None: update_data["recepcionadas"] = int(recep)
-    mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$set": update_data})
+# ¡ESTA ES LA RUTA NUEVA QUE ARREGLA LOS BOTONES + Y -!
+@app.route('/stock/actualizar/<id>', methods=['PUT', 'OPTIONS'])
+def actualizar_stock(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
+        
+    tipo = request.args.get('tipo')
+    cantidad = int(request.args.get('cantidad', 0))
+    
+    # Usamos $inc para SUMAR o RESTAR al valor actual, no para sobrescribir
+    if tipo == 'rec':
+        mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$inc": {"recepcionadas": cantidad}})
+    elif tipo == 'ven':
+        mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$inc": {"vendido": cantidad}})
+        
     return jsonify({"msg": "OK"})
 
 @app.route('/stock/eliminar/<id>', methods=['DELETE'])
@@ -54,8 +64,10 @@ def get_pedidos():
         p['_id'] = str(p['_id'])
     return jsonify(pedidos)
 
-@app.route('/pedidos/crear', methods=['POST'])
+@app.route('/pedidos/crear', methods=['POST', 'OPTIONS'])
 def crear_pedido():
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
     data = request.json
     data["fecha"] = datetime.now().strftime("%d/%m/%Y")
     if "cantidad" not in data: data["cantidad"] = 1
@@ -63,14 +75,18 @@ def crear_pedido():
     mongo.db.pedidos.insert_one(data)
     return jsonify({"msg": "OK"})
 
-@app.route('/pedidos/actualizar/<id>', methods=['PUT'])
+@app.route('/pedidos/actualizar/<id>', methods=['PUT', 'OPTIONS'])
 def actualizar_pedido(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
     cantidad = request.args.get('cantidad')
     mongo.db.pedidos.update_one({"_id": ObjectId(id)}, {"$set": {"cantidad": int(cantidad)}})
     return jsonify({"msg": "OK"})
 
-@app.route('/pedidos/finalizar/<id>', methods=['PUT'])
+@app.route('/pedidos/finalizar/<id>', methods=['PUT', 'OPTIONS'])
 def finalizar_pedido(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
     mongo.db.pedidos.update_one({"_id": ObjectId(id)}, {"$set": {"estado": "finalizado"}})
     return jsonify({"msg": "Archivado"})
 
