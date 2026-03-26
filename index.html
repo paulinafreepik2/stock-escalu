@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IMMINENT STOCK - FUNCIONANDO</title>
+    <title>IMMINENT STOCK - SISTEMA COMPLETO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -44,15 +44,17 @@
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🛋️ SOFÁS</button>
                 <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg">📦 ELIAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
-                <div class="mt-8 flex justify-center solo-admin">
+            </div>
+            
+            <div class="mt-8 flex justify-center solo-admin">
                 <button onclick="descargarStockTotal()" class="bg-blue-600 px-8 py-4 rounded-2xl font-black text-lg shadow-lg border-2 border-blue-400 uppercase active:scale-95 transition">
                     💾 DESCARGAR TODO EL STOCK (Copia de Seguridad)
                 </button>
             </div>
-            </div>
-     
+        </div>
 
         <div id="vista-stock" class="hidden">
+            
             <div class="solo-admin bg-card p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
                 <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ NUEVO PRODUCTO EN <span id="nombre-linea-form"></span></h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -66,24 +68,26 @@
                     </select>
                     <input id="new-stock" type="number" placeholder="CANT." class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white outline-none">
                     <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">GUARDAR</button>
-                    <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p class="text-xs text-slate-400 font-bold uppercase">📂 Subir varios de golpe desde Excel:</p>
                     <div class="flex gap-2 w-full md:w-auto">
                         <input type="file" id="file-import" accept=".xlsx, .xls" class="text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white cursor-pointer w-full">
                         <button onclick="importarExcel()" class="bg-blue-600 px-4 py-2 rounded-xl font-bold uppercase text-xs shadow-lg whitespace-nowrap">🚀 SUBIR</button>
                     </div>
                 </div>
-                
-          
+            </div>
+            
             <div class="flex justify-between items-center mb-6 px-2">
                 <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
                 <div class="flex gap-4 items-center">
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="p-3 w-40 md:w-80 rounded-xl bg-card border border-slate-700 text-white outline-none">
-                    <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
+                    <button id="btn-volver-stock" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
                 </div>
             </div>
 
-<div class="bg-card rounded-[2rem] border border-slate-800 overflow-x-auto shadow-2xl">
+            <div class="bg-card rounded-[2rem] border border-slate-800 overflow-x-auto shadow-2xl">
                 <table class="w-full text-left">
                     <thead class="bg-header text-slate-500 text-[10px] uppercase font-bold tracking-widest">
                         <tr>
@@ -100,13 +104,12 @@
             </div>
         </div>
 
-<div id="vista-pedidos" class="hidden">
+        <div id="vista-pedidos" class="hidden">
             <div class="bg-card p-6 rounded-[2rem] border border-slate-800 shadow-2xl">
                 <div class="flex justify-between items-center mb-8">
                     <h2 id="titulo-pedidos" class="text-4xl font-black text-emerald-400 italic">📝 PEDIDOS</h2>
                     <div class="flex gap-3">
                         <button onclick="descargarTodosExcel()" class="bg-blue-600 px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">📥 EXCEL GLOBAL</button>
-                        
                         <button id="btn-historial" onclick="toggleHistorial()" class="bg-purple-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">📜 VER HISTORIAL</button>
                         <button onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold text-xs">VOLVER</button>
                     </div>
@@ -119,9 +122,9 @@
                 </div>
             </div>
         </div>
+    </div>
 
     <script>
-        // VARIABLES EXACTAS A LAS QUE FUNCIONABAN AL PRINCIPIO
         const URL_API = "https://stock-escalu-app.onrender.com";
         let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = [];
 
@@ -137,10 +140,29 @@
             return 'badge-default';
         }
 
+        // --- SISTEMA DE LOGIN Y RESTRICCIONES ---
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            if (pass === '12345CUCA') { esAdmin = true; document.body.classList.remove('modo-cliente'); entrar("ADMIN"); }
-            else { esAdmin = false; document.body.classList.add('modo-cliente'); entrar("INVITADO"); }
+            
+            if (pass === '12345CUCA') { 
+                esAdmin = true; 
+                document.body.classList.remove('modo-cliente'); 
+                document.getElementById('btn-volver-stock').classList.remove('hidden');
+                entrar("ADMINISTRADOR"); 
+            } 
+            else if (pass === 'SOFAS') {
+                esAdmin = false; 
+                document.body.classList.add('modo-cliente');
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('btn-volver-stock').classList.add('hidden'); // No puede salir de sofás
+                cargarStock('SOFAS');
+            }
+            else { 
+                esAdmin = false; 
+                document.body.classList.add('modo-cliente'); 
+                document.getElementById('btn-volver-stock').classList.remove('hidden');
+                entrar("INVITADO"); 
+            }
         }
 
         function entrar(txt) {
@@ -149,7 +171,8 @@
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
-async function cargarStock(seccion) {
+        // --- TABLA DE STOCK ---
+        async function cargarStock(seccion) {
             seccionActual = seccion; 
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
@@ -162,7 +185,7 @@ async function cargarStock(seccion) {
             tabla.innerHTML = '';
             
             datos.forEach(m => {
-                const actual = m.recepcionadas - m.vendido;
+                const actual = (m.recepcionadas || 0) - (m.vendido || 0);
                 const claseCol = getClaseColor(m.color);
                 
                 tabla.innerHTML += `
@@ -173,14 +196,14 @@ async function cargarStock(seccion) {
                     <td class="p-5">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarConPrompt('${m._id}', 'rec', -1)" class="solo-admin btn-accion bg-red-900 border border-red-700">-</button>
-                            <span class="text-xl font-black w-10 text-center">${m.recepcionadas}</span>
+                            <span class="text-xl font-black w-10 text-center">${m.recepcionadas || 0}</span>
                             <button onclick="cambiarConPrompt('${m._id}', 'rec', 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500">+</button>
                         </div>
                     </td>
                     <td class="p-5">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-accion bg-red-900 border border-red-700">-</button>
-                            <span class="text-xl font-black w-10 text-center">${m.vendido}</span>
+                            <span class="text-xl font-black w-10 text-center">${m.vendido || 0}</span>
                             <button onclick="cambiarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500">+</button>
                         </div>
                     </td>
@@ -195,16 +218,13 @@ async function cargarStock(seccion) {
             });
         }
 
-        // LA FUNCIÓN NUEVA PARA BORRAR
         async function eliminarProducto(id, ref) {
-            // Un aviso por si le das con el dedo sin querer en el móvil
-            if (confirm(`⚠️ ¡ATENCIÓN! Vas a borrar completamente el producto ${ref} del stock. ¿Estás seguro?`)) {
+            if (confirm(`⚠️ Vas a borrar completamente el producto ${ref} del stock. ¿Estás seguro?`)) {
                 await fetch(`${URL_API}/stock/eliminar/${id}`, { method: 'DELETE' });
-                cargarStock(seccionActual); // Recarga la tabla para que veas que ha desaparecido
+                cargarStock(seccionActual); 
             }
         }
 
-        // FUNCIÓN DEL POP-UP EXACTAMENTE IGUAL A LA QUE FUNCIONABA
         async function cambiarConPrompt(id, tipo, signo) {
             const msj = signo > 0 ? "¿CUÁNTAS UNIDADES LLEGAN?" : "¿CUÁNTAS QUITAS?";
             const num = prompt(msj);
@@ -220,7 +240,6 @@ async function cargarStock(seccion) {
             cargarStock(seccionActual);
         }
 
-        // FUNCIÓN DE AÑADIR CON LAS VARIABLES EXACTAS
         async function guardarNuevoProducto() {
             const ref = document.getElementById('new-ref').value.trim().toUpperCase();
             const desc = document.getElementById('new-desc').value.trim().toUpperCase();
@@ -231,14 +250,7 @@ async function cargarStock(seccion) {
             
             await fetch(`${URL_API}/stock/agregar`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    seccion: seccionActual, 
-                    ref: ref, 
-                    descripcion: desc, 
-                    color: col, 
-                    recepcionadas: parseInt(stock), 
-                    vendido: 0 
-                })
+                body: JSON.stringify({ seccion: seccionActual, ref: ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
             });
             
             alert("GUARDADO CORRECTAMENTE"); 
@@ -248,6 +260,7 @@ async function cargarStock(seccion) {
             document.getElementById('new-stock').value = '';
         }
 
+        // --- SISTEMA DE PEDIDOS ---
         async function anotarPedido(ref, desc, color) {
             const cliente = prompt("¿NOMBRE DEL CLIENTE?");
             if (!cliente) return;
@@ -258,14 +271,12 @@ async function cargarStock(seccion) {
             alert("ANOTADO");
         }
 
-// 1. FUNCIÓN DE VER PEDIDOS (AHORA CON COLUMNA DE CANTIDAD Y BOTONES)
         async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
             document.getElementById('btn-historial').innerText = "📜 VER HISTORIAL";
             
-            // Hemos añadido la cabecera "CANT."
             document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">MUEBLE</th><th class="p-5 text-center">CANT.</th><th class="p-5 text-center">OK</th></tr>`;
             
             const res = await fetch(`${URL_API}/pedidos`);
@@ -274,13 +285,11 @@ async function cargarStock(seccion) {
             tabla.innerHTML = '';
             
             pedidosCache.forEach(p => {
-                const cant = p.cantidad || 1; // Si no tiene cantidad guardada, asume que es 1
-                
+                const cant = p.cantidad || 1;
                 tabla.innerHTML += `
                 <tr class="border-slate-800">
                     <td class="p-5 text-emerald-400 font-bold">${p.cliente}</td>
                     <td class="p-5 text-xs text-slate-400 uppercase font-bold">${p.descripcion}</td>
-                    
                     <td class="p-5">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, -1)" class="solo-admin btn-accion bg-red-900 border border-red-700" style="width: 28px; height: 28px; font-size: 16px;">-</button>
@@ -288,7 +297,6 @@ async function cargarStock(seccion) {
                             <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500" style="width: 28px; height: 28px; font-size: 16px;">+</button>
                         </div>
                     </td>
-                    
                     <td class="p-5 text-center">
                         <button onclick="terminar('${p._id}')" class="text-3xl active:scale-90 transition">✅</button>
                     </td>
@@ -296,21 +304,14 @@ async function cargarStock(seccion) {
             });
         }
 
-        // 2. LA NUEVA FUNCIÓN QUE MANDA LA ORDEN AL SERVIDOR
         async function cambiarCantidadPedido(id, cantidadActual, cambio) {
             const nuevaCanti = cantidadActual + cambio;
-            
-            // Si le da al menos (-) y llega a cero, le preguntamos si quiere archivar el pedido entero
             if (nuevaCanti < 1) {
-                if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) {
-                    terminar(id);
-                }
+                if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) terminar(id);
                 return;
             }
-            
-            // Mandamos la nueva cantidad a tu base de datos
             await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nuevaCanti}`, { method: 'PUT' });
-            verPedidos(); // Refresca la tabla al instante para que veas el cambio
+            verPedidos();
         }
 
         async function toggleHistorial() {
@@ -329,6 +330,13 @@ async function cargarStock(seccion) {
             } else { verPedidos(); }
         }
 
+        async function terminar(id) { if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); } }
+        
+        // --- UTILIDADES ---
+        function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
+        function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
+
+        // --- SISTEMA DE EXCEL ---
         function descargarExcel(c) {
             const data = pedidosCache.filter(p => p.cliente.toUpperCase() === c).map(p => ({ FECHA: p.fecha, REF: p.ref, DESC: p.descripcion, COLOR: p.color }));
             const ws = XLSX.utils.json_to_sheet(data);
@@ -337,76 +345,41 @@ async function cargarStock(seccion) {
             XLSX.writeFile(wb, `Albaran_${c}.xlsx`);
         }
 
-        async function terminar(id) { if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); } }
-        function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
-        function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
-    // NUEVA FUNCIÓN PARA DESCARGAR TODOS LOS PEDIDOS JUNTOS
         function descargarTodosExcel() {
-            if (!pedidosCache || pedidosCache.length === 0) {
-                return alert("NO HAY PEDIDOS EN LA PANTALLA PARA DESCARGAR");
-            }
-
-            // Preparamos los datos ordenados para el Excel
-            const listaGlobal = pedidosCache.map(p => ({
-                FECHA: p.fecha || "",
-                CLIENTE: p.cliente,
-                REF: p.ref,
-                MUEBLE: p.descripcion,
-                COLOR: p.color || "",
-                CANTIDAD: p.cantidad || 1
-            }));
-
-            // Creamos el archivo Excel
+            if (!pedidosCache || pedidosCache.length === 0) return alert("NO HAY PEDIDOS EN LA PANTALLA PARA DESCARGAR");
+            const listaGlobal = pedidosCache.map(p => ({ FECHA: p.fecha || "", CLIENTE: p.cliente, REF: p.ref, MUEBLE: p.descripcion, COLOR: p.color || "", CANTIDAD: p.cantidad || 1 }));
             const ws = XLSX.utils.json_to_sheet(listaGlobal);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
-            
-            // Le ponemos la fecha de hoy al nombre del archivo para que no te líes
             const hoy = new Date();
             const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
-            
             XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
-            // --- 1. FUNCIÓN PARA COPIA DE SEGURIDAD GLOBAL ---
+        }
+
         async function descargarStockTotal() {
             const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS'];
             let stockTotal = [];
-            
             alert("⏳ Recopilando todo el almacén... Dale a Aceptar y espera unos segundos.");
             
-            // Recorremos todas las secciones preguntándole a la base de datos
             for (let sec of secciones) {
                 try {
                     const res = await fetch(`${URL_API}/stock/${sec}`);
                     const datos = await res.json();
                     datos.forEach(d => {
-                        stockTotal.push({
-                            SECCION: d.seccion,
-                            REF: d.ref,
-                            PRODUCTO: d.descripcion,
-                            COLOR: d.color,
-                            RECEPCIONADAS: d.recepcionadas || 0,
-                            VENDIDAS: d.vendido || 0,
-                            STOCK_REAL: (d.recepcionadas || 0) - (d.vendido || 0)
-                        });
+                        stockTotal.push({ SECCION: d.seccion, REF: d.ref, PRODUCTO: d.descripcion, COLOR: d.color, RECEPCIONADAS: d.recepcionadas || 0, VENDIDAS: d.vendido || 0, STOCK_REAL: (d.recepcionadas || 0) - (d.vendido || 0) });
                     });
-                } catch (e) {
-                    console.error("Error cargando " + sec);
-                }
+                } catch (e) { console.error("Error cargando " + sec); }
             }
-            
             if (stockTotal.length === 0) return alert("El almacén está vacío o hay un error de conexión.");
             
-            // Creamos y descargamos el Excel
             const ws = XLSX.utils.json_to_sheet(stockTotal);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "INVENTARIO TOTAL");
-            
             const hoy = new Date();
             const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
             XLSX.writeFile(wb, `Copia_Seguridad_Imminent_${fecha}.xlsx`);
         }
 
-        // --- 2. FUNCIÓN PARA SUBIR EXCEL DE GOLPE ---
         async function importarExcel() {
             const fileInput = document.getElementById('file-import');
             if (!fileInput.files.length) return alert("⚠️ Selecciona un archivo Excel primero.");
@@ -421,37 +394,38 @@ async function cargarStock(seccion) {
                 const filas = XLSX.utils.sheet_to_json(firstSheet);
                 
                 if (filas.length === 0) return alert("El Excel está vacío.");
-                if (!confirm(`Vas a subir ${filas.length} productos a la sección ${seccionActual}. ¿Continuar?`)) return;
+                if (!confirm(`Vas a subir ${filas.length} productos a la base de datos. ¿Continuar?`)) return;
                 
                 alert("⏳ Subiendo productos... No toques nada hasta que salga el aviso de completado.");
                 
                 for (let fila of filas) {
-                    // Busca las columnas en tu Excel (no importa si están en mayúsculas o minúsculas)
-                    const ref = fila.REF || fila.ref || fila.Ref || "SIN-REF";
-                    const desc = fila.MUEBLE || fila.PRODUCTO || fila.descripcion || fila.mueble || "MUEBLE";
-                    const col = fila.COLOR || fila.color || fila.Color || "DEFAULT";
-                    const stock = parseInt(fila.CANTIDAD || fila.cantidad || fila.recepcionadas || 0);
+                    const ref = fila.ref || fila.REF || "";
+                    const desc = fila.descripcion || fila.descripcion || fila.DESCRIPCION || "";
+                    const col = fila.color || fila.COLOR || "";
+                    const rec = parseInt(fila.recepcionadas || 0);
+                    const ven = parseInt(fila.vendido || 0);
+                    const sec = fila.seccion || fila.SECCION || seccionActual; 
+                    
+                    if (!ref || !desc) continue;
                     
                     await fetch(`${URL_API}/stock/agregar`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ 
-                            seccion: seccionActual, 
+                            seccion: String(sec).toUpperCase(), 
                             ref: String(ref).toUpperCase(), 
                             descripcion: String(desc).toUpperCase(), 
                             color: String(col).toUpperCase(), 
-                            recepcionadas: isNaN(stock) ? 0 : stock, 
-                            vendido: 0 
+                            recepcionadas: isNaN(rec) ? 0 : rec, 
+                            vendido: isNaN(ven) ? 0 : ven 
                         })
                     });
                 }
-                
                 alert("✅ ¡SUBIDA COMPLETADA CON ÉXITO!");
-                fileInput.value = ""; // Limpiamos el selector de archivo
-                cargarStock(seccionActual); // Recargamos la tabla para que veas lo nuevo
+                fileInput.value = ""; 
+                cargarStock(seccionActual); 
             };
-            
             reader.readAsArrayBuffer(file);
         }
-        }</script>
+    </script>
 </body>
 </html>
