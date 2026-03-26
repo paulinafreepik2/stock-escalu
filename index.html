@@ -81,6 +81,7 @@
                             <th class="p-5 text-center">VENDIDAS (+/-)</th>
                             <th class="p-5 text-center">STOCK</th>
                             <th class="p-5 text-center col-pedido">PEDIR</th>
+                            <th class="p-5 text-center solo-admin">BORRAR</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpo-tabla" class="divide-y divide-slate-800/50"></tbody>
@@ -137,8 +138,8 @@
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
-        async function cargarStock(seccion) {
-            seccionActual = seccion; // GUARDA LA SECCION AQUÍ PARA EL FORMULARIO
+async function cargarStock(seccion) {
+            seccionActual = seccion; 
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = seccion;
@@ -152,6 +153,7 @@
             datos.forEach(m => {
                 const actual = m.recepcionadas - m.vendido;
                 const claseCol = getClaseColor(m.color);
+                
                 tabla.innerHTML += `
                 <tr class="hover:bg-slate-800/20 border-slate-800 font-bold">
                     <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
@@ -175,8 +177,20 @@
                     <td class="p-5 text-center col-pedido">
                         <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black">🛒 PEDIR</button>
                     </td>
+                    <td class="p-5 text-center solo-admin">
+                        <button onclick="eliminarProducto('${m._id}', '${m.ref}')" class="text-2xl active:scale-90 transition">🗑️</button>
+                    </td>
                 </tr>`;
             });
+        }
+
+        // LA FUNCIÓN NUEVA PARA BORRAR
+        async function eliminarProducto(id, ref) {
+            // Un aviso por si le das con el dedo sin querer en el móvil
+            if (confirm(`⚠️ ¡ATENCIÓN! Vas a borrar completamente el producto ${ref} del stock. ¿Estás seguro?`)) {
+                await fetch(`${URL_API}/stock/eliminar/${id}`, { method: 'DELETE' });
+                cargarStock(seccionActual); // Recarga la tabla para que veas que ha desaparecido
+            }
         }
 
         // FUNCIÓN DEL POP-UP EXACTAMENTE IGUAL A LA QUE FUNCIONABA
