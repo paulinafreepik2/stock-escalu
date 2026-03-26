@@ -233,19 +233,59 @@
             alert("ANOTADO");
         }
 
+// 1. FUNCIÓN DE VER PEDIDOS (AHORA CON COLUMNA DE CANTIDAD Y BOTONES)
         async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
             document.getElementById('btn-historial').innerText = "📜 VER HISTORIAL";
-            document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">MUEBLE</th><th class="p-5 text-center">OK</th></tr>`;
+            
+            // Hemos añadido la cabecera "CANT."
+            document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">MUEBLE</th><th class="p-5 text-center">CANT.</th><th class="p-5 text-center">OK</th></tr>`;
+            
             const res = await fetch(`${URL_API}/pedidos`);
             pedidosCache = await res.json();
             const tabla = document.getElementById('cuerpo-pedidos');
             tabla.innerHTML = '';
+            
             pedidosCache.forEach(p => {
-                tabla.innerHTML += `<tr class="border-slate-800"><td class="p-5 text-emerald-400 font-bold">${p.cliente}</td><td class="p-5 text-xs text-slate-400 uppercase font-bold">${p.descripcion}</td><td class="p-5 text-center"><button onclick="terminar('${p._id}')" class="text-3xl">✅</button></td></tr>`;
+                const cant = p.cantidad || 1; // Si no tiene cantidad guardada, asume que es 1
+                
+                tabla.innerHTML += `
+                <tr class="border-slate-800">
+                    <td class="p-5 text-emerald-400 font-bold">${p.cliente}</td>
+                    <td class="p-5 text-xs text-slate-400 uppercase font-bold">${p.descripcion}</td>
+                    
+                    <td class="p-5">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, -1)" class="solo-admin btn-accion bg-red-900 border border-red-700" style="width: 28px; height: 28px; font-size: 16px;">-</button>
+                            <span class="text-xl font-black w-8 text-center">${cant}</span>
+                            <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500" style="width: 28px; height: 28px; font-size: 16px;">+</button>
+                        </div>
+                    </td>
+                    
+                    <td class="p-5 text-center">
+                        <button onclick="terminar('${p._id}')" class="text-3xl active:scale-90 transition">✅</button>
+                    </td>
+                </tr>`;
             });
+        }
+
+        // 2. LA NUEVA FUNCIÓN QUE MANDA LA ORDEN AL SERVIDOR
+        async function cambiarCantidadPedido(id, cantidadActual, cambio) {
+            const nuevaCanti = cantidadActual + cambio;
+            
+            // Si le da al menos (-) y llega a cero, le preguntamos si quiere archivar el pedido entero
+            if (nuevaCanti < 1) {
+                if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) {
+                    terminar(id);
+                }
+                return;
+            }
+            
+            // Mandamos la nueva cantidad a tu base de datos
+            await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nuevaCanti}`, { method: 'PUT' });
+            verPedidos(); // Refresca la tabla al instante para que veas el cambio
         }
 
         async function toggleHistorial() {
