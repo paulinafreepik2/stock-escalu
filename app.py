@@ -89,6 +89,12 @@ def finalizar_pedido(id):
         return jsonify({"msg": "OK"}), 200
     mongo.db.pedidos.update_one({"_id": ObjectId(id)}, {"$set": {"estado": "finalizado"}})
     return jsonify({"msg": "Archivado"})
+    @app.route('/pedidos/eliminar/<id>', methods=['DELETE', 'OPTIONS'])
+def eliminar_pedido(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
+    mongo.db.pedidos.delete_one({"_id": ObjectId(id)})
+    return jsonify({"msg": "OK"})
 
 @app.route('/pedidos/historial', methods=['GET'])
 def get_historial():
