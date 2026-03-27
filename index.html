@@ -140,28 +140,36 @@
             return 'badge-default';
         }
 
-        // --- SISTEMA DE LOGIN Y RESTRICCIONES ---
+// --- SISTEMA DE LOGIN Y RESTRICCIONES CERRADO CON CANDADO ---
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             
             if (pass === '12345CUCA') { 
+                // 👑 ADMIN: Entra a todo
                 esAdmin = true; 
                 document.body.classList.remove('modo-cliente'); 
                 document.getElementById('btn-volver-stock').classList.remove('hidden');
                 entrar("ADMINISTRADOR"); 
             } 
             else if (pass === 'SOFAS') {
+                // 🛋️ SOLO SOFÁS: Entra directo y no puede salir
                 esAdmin = false; 
                 document.body.classList.add('modo-cliente');
                 document.getElementById('pantalla-login').classList.add('hidden');
-                document.getElementById('btn-volver-stock').classList.add('hidden'); // No puede salir de sofás
+                document.getElementById('btn-volver-stock').classList.add('hidden');
                 cargarStock('SOFAS');
             }
-            else { 
+            else if (pass === 'INVITADO') { 
+                // 👤 INVITADO: Solo entra si pone la palabra "INVITADO"
                 esAdmin = false; 
                 document.body.classList.add('modo-cliente'); 
                 document.getElementById('btn-volver-stock').classList.remove('hidden');
                 entrar("INVITADO"); 
+            }
+            else { 
+                // ❌ CLAVE INCORRECTA O EN BLANCO: Bloqueo
+                alert("❌ CONTRASEÑA INCORRECTA. Acceso denegado.");
+                document.getElementById('input-pass').value = ""; // Borra lo que haya escrito mal
             }
         }
 
