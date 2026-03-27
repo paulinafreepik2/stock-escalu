@@ -332,20 +332,53 @@ tabla.innerHTML += `
             verPedidos();
         }
 
-        async function toggleHistorial() {
+async function toggleHistorial() {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
                 document.getElementById('btn-historial').innerText = "📝 VER ACTIVOS";
-                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5 text-center">EXCEL</th></tr>`;
+                
+                // Añadimos la columna BORRAR (Solo para Administrador)
+                document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5 text-center">EXCEL</th><th class="p-5 text-center solo-admin">BORRAR</th></tr>`;
+                
                 const res = await fetch(`${URL_API}/pedidos/historial`);
                 pedidosCache = await res.json();
                 const tabla = document.getElementById('cuerpo-pedidos');
                 tabla.innerHTML = '';
                 const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
+                
                 clientes.forEach(c => {
-                    tabla.innerHTML += `<tr class="border-slate-800"><td class="p-5 text-emerald-400 font-bold">${c}</td><td class="p-5 text-center"><button onclick="descargarExcel('${c}')" class="bg-green-700 px-4 py-2 rounded-lg text-xs font-black">📥 EXCEL</button></td></tr>`;
+                    tabla.innerHTML += `
+                    <tr class="border-slate-800">
+                        <td class="p-5 text-emerald-400 font-bold">${c}</td>
+                        <td class="p-5 text-center">
+                            <button onclick="descargarExcel('${c}')" class="bg-green-700 px-4 py-2 rounded-lg text-xs font-black shadow-lg">📥 EXCEL</button>
+                        </td>
+                        <td class="p-5 text-center solo-admin">
+                            <button onclick="eliminarHistorialCliente('${c}')" class="text-2xl active:scale-90 transition">🗑️</button>
+                        </td>
+                    </tr>`;
                 });
             } else { verPedidos(); }
+        }
+
+        // LA FUNCIÓN NUEVA QUE DESTRUYE EL HISTORIAL DE ESE CLIENTE
+        async function eliminarHistorialCliente(cliente) {
+            if (confirm(`⚠️ ¿Seguro que quieres borrar TODO el historial del cliente ${cliente}? Esto no se puede deshacer.`)) {
+                
+                // Buscamos todos los muebles que pidió ese cliente en el historial
+                const pedidosCliente = pedidosCache.filter(p => p.cliente.toUpperCase() === cliente);
+                
+                // Los borramos uno a uno de la base de datos
+                for (let p of pedidosCliente) {
+                    await fetch(`${URL_API}/pedidos/eliminar/${p._id}`, { method: 'DELETE' });
+                }
+                
+                alert(`✅ Historial de ${cliente} borrado para siempre.`);
+                
+                // Recargamos el historial para que veas cómo desaparece
+                viendoHistorial = false; 
+                toggleHistorial();
+            }
         }
 
         async function terminar(id) { if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); } }
