@@ -55,6 +55,13 @@ def delete_product(id):
         return jsonify({"msg": "OK"}), 200
     mongo.db.stock.delete_one({"_id": ObjectId(id)})
     return jsonify({"msg": "OK"})
+    @app.route('/stock/eliminar_seccion/<seccion>', methods=['DELETE', 'OPTIONS'])
+def eliminar_toda_seccion(seccion):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
+    # Aquí está la magia: delete_many borra TODO lo que coincida con la sección
+    mongo.db.stock.delete_many({"seccion": seccion})
+    return jsonify({"msg": "OK"})
 
 # --- RUTAS DE PEDIDOS ---
 @app.route('/pedidos', methods=['GET'])
