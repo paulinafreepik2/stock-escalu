@@ -79,8 +79,12 @@
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-6 px-2">
-                <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
+<div class="flex justify-between items-center mb-6 px-2">
+                <div class="flex items-center gap-4">
+                    <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
+                    <button onclick="borrarSeccionCompleta()" class="solo-admin text-3xl active:scale-90 transition hover:bg-red-900/50 p-2 rounded-xl" title="BORRAR TODO EL CATÁLOGO">🗑️💥</button>
+                </div>
+                
                 <div class="flex gap-4 items-center">
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="p-3 w-40 md:w-80 rounded-xl bg-card border border-slate-700 text-white outline-none">
                     <button id="btn-volver-stock" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
