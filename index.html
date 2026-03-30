@@ -283,26 +283,24 @@ tabla.innerHTML += `
         }
 
 // --- SISTEMA DE PEDIDOS AUTOMATIZADO ---
-        async function anotarPedido(id, ref, desc, color) {
+async function anotarPedido(id, ref, desc, color) {
             const cliente = prompt(`¿NOMBRE DEL CLIENTE para pedir el ${ref}?`);
-            if (!cliente) return; // Si cancelas, no hace nada
+            if (!cliente) return;
             
-            // 1. Apuntamos el pedido en la lista del cliente
+            // 1. Apuntamos el pedido y lo "enganchamos" al ID del mueble en el stock
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
+                body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1, id_stock: id })
             });
 
-            // 2. Le sumamos 1 a "VENDIDAS" (esto hace que baje el stock automáticamente)
+            // 2. Le sumamos 1 a "VENDIDAS"
             await fetch(`${URL_API}/stock/actualizar/${id}?tipo=ven&cantidad=1`, { method: 'PUT' });
 
             alert("✅ PEDIDO ANOTADO Y STOCK ACTUALIZADO");
-            
-            // 3. Recargamos la tabla para que veas cómo ha bajado el número de stock en tu cara
             cargarStock(seccionActual);
         }
 
-        async function verPedidos() {
+async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
@@ -317,15 +315,17 @@ tabla.innerHTML += `
             
             pedidosCache.forEach(p => {
                 const cant = p.cantidad || 1;
+                const idStock = p.id_stock || ''; // Pillamos el ID secreto del mueble
+                
                 tabla.innerHTML += `
                 <tr class="border-slate-800">
                     <td class="p-5 text-emerald-400 font-bold">${p.cliente}</td>
                     <td class="p-5 text-xs text-slate-400 uppercase font-bold">${p.descripcion}</td>
                     <td class="p-5">
                         <div class="flex items-center justify-center gap-2">
-                            <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, -1)" class="solo-admin btn-accion bg-red-900 border border-red-700" style="width: 28px; height: 28px; font-size: 16px;">-</button>
+                            <button onclick="cambiarCantidadPedido('${p._id}', '${idStock}', ${cant}, -1)" class="solo-admin btn-accion bg-red-900 border border-red-700" style="width: 28px; height: 28px; font-size: 16px;">-</button>
                             <span class="text-xl font-black w-8 text-center">${cant}</span>
-                            <button onclick="cambiarCantidadPedido('${p._id}', ${cant}, 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500" style="width: 28px; height: 28px; font-size: 16px;">+</button>
+                            <button onclick="cambiarCantidadPedido('${p._id}', '${idStock}', ${cant}, 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500" style="width: 28px; height: 28px; font-size: 16px;">+</button>
                         </div>
                     </td>
                     <td class="p-5 text-center">
@@ -335,14 +335,26 @@ tabla.innerHTML += `
             });
         }
 
-        async function cambiarCantidadPedido(id, cantidadActual, cambio) {
+async function cambiarCantidadPedido(idPedido, idStock, cantidadActual, cambio) {
             const nuevaCanti = cantidadActual + cambio;
+            
             if (nuevaCanti < 1) {
-                if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) terminar(id);
+                if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) terminar(idPedido);
                 return;
             }
-            await fetch(`${URL_API}/pedidos/actualizar/${id}?cantidad=${nuevaCanti}`, { method: 'PUT' });
-            verPedidos();
+            
+            // 1. Actualiza el numerito en el pedido
+            await fetch(`${URL_API}/pedidos/actualizar/${idPedido}?cantidad=${nuevaCanti}`, { method: 'PUT' });
+            
+            // 2. ¡LA MAGIA! Sincroniza con el stock maestro (suma o resta a "vendidas")
+            if (idStock) {
+                await fetch(`${URL_API}/stock/actualizar/${idStock}?tipo=ven&cantidad=${cambio}`, { method: 'PUT' });
+            } else {
+                // Aviso por si es un pedido súper antiguo que hiciste antes de poner esta mejora
+                console.log("Pedido antiguo sin ID de stock enlazado.");
+            }
+            
+            verPedidos(); // Refresca la tabla al instante
         }
 
 async function toggleHistorial() {
