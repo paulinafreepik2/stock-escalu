@@ -481,6 +481,30 @@ async function toggleHistorial() {
             };
             reader.readAsArrayBuffer(file);
         }
+        // --- FUNCIÓN NUCLEAR: BORRAR TODA LA SECCIÓN DE GOLPE ---
+        async function borrarSeccionCompleta() {
+            // El seguro de vida: te obliga a escribir BORRAR en mayúsculas
+            const palabra = prompt(`⚠️ ¡PELIGRO RADIACTIVO! ⚠️\n\nVas a borrar TODOS los productos de la sección ${seccionActual} de golpe.\n\nPara confirmar, escribe la palabra BORRAR en mayúsculas:`);
+            
+            if (palabra === 'BORRAR') {
+                try {
+                    const res = await fetch(`${URL_API}/stock/eliminar_seccion/${seccionActual}`, { method: 'DELETE' });
+                    
+                    if (!res.ok) {
+                        alert("❌ EL SERVIDOR LO HA BLOQUEADO. Revisa si se guardó bien el app.py en GitHub.");
+                        return;
+                    }
+                    
+                    alert(`💥 ¡PUM! Catálogo entero de ${seccionActual} eliminado.`);
+                    cargarStock(seccionActual); // Recarga la tabla, que ahora estará vacía
+                    
+                } catch (err) {
+                    alert("❌ Error de conexión: " + err.message);
+                }
+            } else if (palabra !== null) {
+                alert("Cancelado. No has escrito la palabra correcta. ¡Tus muebles están a salvo!");
+            }
+        }
     </script>
 </body>
 </html>
