@@ -229,8 +229,8 @@ tabla.innerHTML += `
                     
                     <td class="p-5 text-center text-3xl font-black text-white">${actual}</td>
                     
-                    <td class="p-5 text-center col-pedido solo-admin">
-                        <button onclick="anotarPedido('${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black">🛒 PEDIR</button>
+<td class="p-5 text-center col-pedido solo-admin">
+                        <button onclick="anotarPedido('${m._id}', '${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black shadow-lg active:scale-95 transition">🛒 PEDIR</button>
                     </td>
                     
                     <td class="p-5 text-center solo-admin">
@@ -282,15 +282,24 @@ tabla.innerHTML += `
             document.getElementById('new-stock').value = '';
         }
 
-        // --- SISTEMA DE PEDIDOS ---
-        async function anotarPedido(ref, desc, color) {
-            const cliente = prompt("¿NOMBRE DEL CLIENTE?");
-            if (!cliente) return;
+// --- SISTEMA DE PEDIDOS AUTOMATIZADO ---
+        async function anotarPedido(id, ref, desc, color) {
+            const cliente = prompt(`¿NOMBRE DEL CLIENTE para pedir el ${ref}?`);
+            if (!cliente) return; // Si cancelas, no hace nada
+            
+            // 1. Apuntamos el pedido en la lista del cliente
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1 })
             });
-            alert("ANOTADO");
+
+            // 2. Le sumamos 1 a "VENDIDAS" (esto hace que baje el stock automáticamente)
+            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=ven&cantidad=1`, { method: 'PUT' });
+
+            alert("✅ PEDIDO ANOTADO Y STOCK ACTUALIZADO");
+            
+            // 3. Recargamos la tabla para que veas cómo ha bajado el número de stock en tu cara
+            cargarStock(seccionActual);
         }
 
         async function verPedidos() {
