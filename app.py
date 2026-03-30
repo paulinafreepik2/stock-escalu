@@ -34,7 +34,6 @@ def add_product():
     mongo.db.stock.insert_one(data)
     return jsonify({"msg": "OK"})
 
-# ¡ESTA ES LA RUTA NUEVA QUE ARREGLA LOS BOTONES + Y -!
 @app.route('/stock/actualizar/<id>', methods=['PUT', 'OPTIONS'])
 def actualizar_stock(id):
     if request.method == 'OPTIONS':
@@ -43,7 +42,6 @@ def actualizar_stock(id):
     tipo = request.args.get('tipo')
     cantidad = int(request.args.get('cantidad', 0))
     
-    # Usamos $inc para SUMAR o RESTAR al valor actual, no para sobrescribir
     if tipo == 'rec':
         mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$inc": {"recepcionadas": cantidad}})
     elif tipo == 'ven':
@@ -51,8 +49,10 @@ def actualizar_stock(id):
         
     return jsonify({"msg": "OK"})
 
-@app.route('/stock/eliminar/<id>', methods=['DELETE'])
+@app.route('/stock/eliminar/<id>', methods=['DELETE', 'OPTIONS'])
 def delete_product(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
     mongo.db.stock.delete_one({"_id": ObjectId(id)})
     return jsonify({"msg": "OK"})
 
@@ -89,7 +89,9 @@ def finalizar_pedido(id):
         return jsonify({"msg": "OK"}), 200
     mongo.db.pedidos.update_one({"_id": ObjectId(id)}, {"$set": {"estado": "finalizado"}})
     return jsonify({"msg": "Archivado"})
-    @app.route('/pedidos/eliminar/<id>', methods=['DELETE', 'OPTIONS'])
+
+# LA RUTA DE ELIMINAR PEDIDO (Con la sangría perfecta)
+@app.route('/pedidos/eliminar/<id>', methods=['DELETE', 'OPTIONS'])
 def eliminar_pedido(id):
     if request.method == 'OPTIONS':
         return jsonify({"msg": "OK"}), 200
