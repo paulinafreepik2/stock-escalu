@@ -16,7 +16,7 @@ mongo = PyMongo(app)
 
 @app.route('/')
 def home():
-    return "Servidor ESCALU OK"
+    return send_file('index.html')
 
 # --- RUTAS DE STOCK ---
 @app.route('/stock/<seccion>', methods=['GET'])
