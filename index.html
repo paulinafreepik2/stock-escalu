@@ -413,33 +413,25 @@ async function toggleHistorial() {
         function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
         function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
 
-        // --- SISTEMA DE EXCEL ---
+// --- SISTEMA DE EXCEL ---
         function descargarExcel(c) {
-function descargarExcel(c) {
-    const data = pedidosCache.filter(p => p.cliente.toUpperCase() === c).map(p => ({ 
-        FECHA: p.fecha, 
-        CLIENTE: p.cliente, 
-        REF: p.ref, 
-        DESC: p.descripcion, 
-        COLOR: p.color, 
-        UNIDADES: p.cantidad || 1  // <-- Aquí cambiamos el nombre a UNIDADES
-    }));
+            const data = pedidosCache.filter(p => p.cliente.toUpperCase() === c).map(p => ({ FECHA: p.fecha, CLIENTE: p.cliente, REF: p.ref, DESC: p.descripcion, COLOR: p.color, UNIDADES: p.cantidad || 1 }));
             const ws = XLSX.utils.json_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "PEDIDO");
             XLSX.writeFile(wb, `Albaran_${c}.xlsx`);
         }
 
-function descargarTodosExcel() {
-    if (!pedidosCache || pedidosCache.length === 0) return alert("NO HAY PEDIDOS");
-    const listaGlobal = pedidosCache.map(p => ({ 
-        FECHA: p.fecha || "", 
-        CLIENTE: p.cliente, 
-        REF: p.ref, 
-        MUEBLE: p.descripcion, 
-        COLOR: p.color || "", 
-        UNIDADES: p.cantidad || 1  // <-- También aquí lo ponemos igual
-    }));
+        function descargarTodosExcel() {
+            if (!pedidosCache || pedidosCache.length === 0) return alert("NO HAY PEDIDOS EN LA PANTALLA PARA DESCARGAR");
+            const listaGlobal = pedidosCache.map(p => ({ FECHA: p.fecha || "", CLIENTE: p.cliente, REF: p.ref, MUEBLE: p.descripcion, COLOR: p.color || "", UNIDADES: p.cantidad || 1 }));
+            const ws = XLSX.utils.json_to_sheet(listaGlobal);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
+            const hoy = new Date();
+            const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
+            XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
+        }
             const ws = XLSX.utils.json_to_sheet(listaGlobal);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
