@@ -79,7 +79,7 @@
                 </div>
             </div>
             
-<div class="flex justify-between items-center mb-6 px-2">
+            <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex items-center gap-4">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
                     <button onclick="borrarSeccionCompleta()" class="solo-admin text-3xl active:scale-90 transition hover:bg-red-900/50 p-2 rounded-xl" title="BORRAR TODO EL CATÁLOGO">🗑️💥</button>
@@ -93,7 +93,7 @@
 
             <div class="bg-card rounded-[2rem] border border-slate-800 overflow-x-auto shadow-2xl">
                 <table class="w-full text-left">
-<thead class="bg-header text-slate-500 text-[10px] uppercase font-bold tracking-widest">
+                    <thead class="bg-header text-slate-500 text-[10px] uppercase font-bold tracking-widest">
                         <tr>
                             <th class="p-5">REF</th>
                             <th class="p-5">PRODUCTO</th>
@@ -149,7 +149,7 @@
             return 'badge-default';
         }
 
-// --- SISTEMA DE LOGIN Y RESTRICCIONES CERRADO CON CANDADO ---
+        // --- SISTEMA DE LOGIN Y RESTRICCIONES CERRADO CON CANDADO ---
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
             
@@ -205,7 +205,7 @@
                 const actual = (m.recepcionadas || 0) - (m.vendido || 0);
                 const claseCol = getClaseColor(m.color);
                 
-tabla.innerHTML += `
+                tabla.innerHTML += `
                 <tr class="hover:bg-slate-800/20 border-slate-800 font-bold">
                     <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
                     <td class="p-5 uppercase text-xs">${m.descripcion}</td>
@@ -229,7 +229,7 @@ tabla.innerHTML += `
                     
                     <td class="p-5 text-center text-3xl font-black text-white">${actual}</td>
                     
-<td class="p-5 text-center col-pedido solo-admin">
+                    <td class="p-5 text-center col-pedido solo-admin">
                         <button onclick="anotarPedido('${m._id}', '${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black shadow-lg active:scale-95 transition">🛒 PEDIR</button>
                     </td>
                     
@@ -283,8 +283,8 @@ tabla.innerHTML += `
             document.getElementById('new-stock').value = '';
         }
 
-// --- SISTEMA DE PEDIDOS AUTOMATIZADO ---
-async function anotarPedido(id, ref, desc, color) {
+        // --- SISTEMA DE PEDIDOS AUTOMATIZADO ---
+        async function anotarPedido(id, ref, desc, color) {
             const cliente = prompt(`¿NOMBRE DEL CLIENTE para pedir el ${ref}?`);
             if (!cliente) return;
             
@@ -301,7 +301,7 @@ async function anotarPedido(id, ref, desc, color) {
             cargarStock(seccionActual);
         }
 
-async function verPedidos() {
+        async function verPedidos() {
             viendoHistorial = false;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
@@ -336,7 +336,7 @@ async function verPedidos() {
             });
         }
 
-async function cambiarCantidadPedido(idPedido, idStock, cantidadActual, cambio) {
+        async function cambiarCantidadPedido(idPedido, idStock, cantidadActual, cambio) {
             const nuevaCanti = cantidadActual + cambio;
             
             if (nuevaCanti < 1) {
@@ -358,7 +358,7 @@ async function cambiarCantidadPedido(idPedido, idStock, cantidadActual, cambio) 
             verPedidos(); // Refresca la tabla al instante
         }
 
-async function toggleHistorial() {
+        async function toggleHistorial() {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
                 document.getElementById('btn-historial').innerText = "📝 VER ACTIVOS";
@@ -413,7 +413,7 @@ async function toggleHistorial() {
         function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
         function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
 
-// --- SISTEMA DE EXCEL ---
+        // --- SISTEMA DE EXCEL ---
         function descargarExcel(c) {
             const data = pedidosCache.filter(p => p.cliente.toUpperCase() === c).map(p => ({ FECHA: p.fecha, CLIENTE: p.cliente, REF: p.ref, DESC: p.descripcion, COLOR: p.color, UNIDADES: p.cantidad || 1 }));
             const ws = XLSX.utils.json_to_sheet(data);
@@ -425,13 +425,6 @@ async function toggleHistorial() {
         function descargarTodosExcel() {
             if (!pedidosCache || pedidosCache.length === 0) return alert("NO HAY PEDIDOS EN LA PANTALLA PARA DESCARGAR");
             const listaGlobal = pedidosCache.map(p => ({ FECHA: p.fecha || "", CLIENTE: p.cliente, REF: p.ref, MUEBLE: p.descripcion, COLOR: p.color || "", UNIDADES: p.cantidad || 1 }));
-            const ws = XLSX.utils.json_to_sheet(listaGlobal);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
-            const hoy = new Date();
-            const fecha = hoy.getDate() + "-" + (hoy.getMonth()+1) + "-" + hoy.getFullYear();
-            XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
-        }
             const ws = XLSX.utils.json_to_sheet(listaGlobal);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "PEDIDOS TOTALES");
