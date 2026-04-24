@@ -284,20 +284,18 @@
         }
 
         // --- SISTEMA DE PEDIDOS AUTOMATIZADO ---
-        async function anotarPedido(id, ref, desc, color) {
+async function anotarPedido(id, ref, desc, color) {
             const cliente = prompt(`¿NOMBRE DEL CLIENTE para pedir el ${ref}?`);
             if (!cliente) return;
             
-            // 1. Apuntamos el pedido y lo "enganchamos" al ID del mueble en el stock
+            // Apuntamos el pedido en la lista
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ cliente: cliente.toUpperCase(), ref, descripcion: desc, color, cantidad: 1, id_stock: id })
             });
 
-            // 2. Le sumamos 1 a "VENDIDAS"
-            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=ven&cantidad=1`, { method: 'PUT' });
-
-            alert("✅ PEDIDO ANOTADO Y STOCK ACTUALIZADO");
+            // Aviso de que se ha guardado sin tocar el stock
+            alert("✅ PEDIDO ANOTADO EN LA LISTA (El stock sigue igual)");
             cargarStock(seccionActual);
         }
 
