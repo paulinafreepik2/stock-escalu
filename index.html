@@ -409,7 +409,15 @@ async function anotarPedido(id, ref, desc, color) {
         
         // --- UTILIDADES ---
         function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
-        function filtrar() { const f = document.getElementById('buscador').value.toUpperCase(); const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); for (let i = 0; i < filas.length; i++) { filas[i].style.display = filas[i].innerText.toUpperCase().includes(f) ? "" : "none"; } }
+function filtrar() { 
+            const terminos = document.getElementById('buscador').value.toUpperCase().trim().split(/\s+/); 
+            const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); 
+            for (let i = 0; i < filas.length; i++) { 
+                const textoFila = filas[i].innerText.toUpperCase(); 
+                const coincide = terminos.every(termino => textoFila.includes(termino)); 
+                filas[i].style.display = coincide ? "" : "none"; 
+            } 
+        }
 
         // --- SISTEMA DE EXCEL ---
         function descargarExcel(c) {
