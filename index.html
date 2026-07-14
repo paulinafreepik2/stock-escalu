@@ -168,6 +168,14 @@
                 document.getElementById('btn-volver-stock').classList.add('hidden');
                 cargarStock('SOFAS');
             }
+                else if (pass === 'FABRICA') {
+                // 🏭 CHICO DE FÁBRICA: Entra directo, TIENE PERMISOS, pero no puede salir
+                esAdmin = true; 
+                document.body.classList.remove('modo-cliente'); 
+                document.getElementById('pantalla-login').classList.add('hidden');
+                document.getElementById('btn-volver-stock').classList.add('hidden'); 
+                cargarStock('FABRICAS');
+            }
             else if (pass === 'INVITADO') { 
                 // 👤 INVITADO: Solo entra si pone la palabra "INVITADO"
                 esAdmin = false; 
