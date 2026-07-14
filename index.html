@@ -62,7 +62,7 @@
                     <input id="new-ref" placeholder="REF" class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white font-bold outline-none">
                     <input id="new-desc" placeholder="MUEBLE" class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white outline-none">
                     <select id="new-color" class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white font-bold outline-none">
-                        <option value="SIN COLOR">SIN COLOR</option>
+                        <option value="">SIN COLOR</option>
                         <option value="CAMBRIAN">CAMBRIAN</option><option value="BLANCO">BLANCO</option>
                         <option value="TIBET">TIBET</option><option value="ROBLE">ROBLE</option>
                         <option value="ROBLE/BLANCO">ROBLE/BLANCO</option><option value="CAMBRIAN/BLANCO">CAMBRIAN/BLANCO</option>
@@ -219,7 +219,7 @@
                 <tr class="hover:bg-slate-800/20 border-slate-800 font-bold">
                     <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
                     <td class="p-5 uppercase text-xs">${m.descripcion}</td>
-                    <td class="p-5"><span class="tag ${claseCol}">${m.color}</span></td>
+                    <td class="p-5">${(m.color && m.color !== "SIN COLOR") ? `<span class="tag ${claseCol}">${m.color}</span>` : ""}</td>
                     
                     <td class="p-5 solo-admin">
                         <div class="flex items-center justify-center gap-2">
