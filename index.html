@@ -43,7 +43,7 @@
                 <button onclick="cargarStock('NOCTURNO')" class="bg-indigo-900 p-8 rounded-3xl font-bold text-xl shadow-lg">🌙 NOCTURNO</button>
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🛋️ SOFÁS</button>
                 <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg">📦 ELIAS</button>
-                <button onclick="cargarStock('FABRICAS')" class="bg-teal-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🏭 STOCK FÁBRICAS</button>
+                <button onclick="cargarStock('FABRICAS')" class="solo-admin bg-teal-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🏭 STOCK FÁBRICAS</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
             </div>
             
@@ -170,12 +170,12 @@
                 document.getElementById('btn-volver-stock').classList.add('hidden');
                 cargarStock('SOFAS');
             }
-                else if (pass === 'FABRICA') {
-                // 🏭 CHICO DE FÁBRICA: Entra directo, TIENE PERMISOS, pero no puede salir
+else if (pass === 'FABRICAS' || pass === 'FABRICA') {
+                // 🏭 ZONA FÁBRICA: Solo para el chico de fábrica o el admin
                 esAdmin = true; 
                 document.body.classList.remove('modo-cliente'); 
                 document.getElementById('pantalla-login').classList.add('hidden');
-                document.getElementById('btn-volver-stock').classList.add('hidden'); 
+                document.getElementById('btn-volver-stock').classList.add('hidden'); // Lo encerramos en su sección
                 cargarStock('FABRICAS');
             }
             else if (pass === 'INVITADO') { 
