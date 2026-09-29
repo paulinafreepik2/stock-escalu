@@ -44,6 +44,7 @@
                 <button onclick="cargarStock('SOFAS')" class="bg-red-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🛋️ SOFÁS</button>
                 <button onclick="cargarStock('ELIAS')" class="bg-purple-700 p-8 rounded-3xl font-bold text-xl border-2 border-purple-400 shadow-lg">📦 ELIAS</button>
                 <button onclick="cargarStock('FABRICAS')" class="solo-admin bg-teal-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🏭 STOCK FÁBRICAS</button>
+                <button onclick="cargarStock('ROL MUEBLES')" class="solo-admin bg-indigo-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🏷️ ROL MUEBLES</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
             </div>
             
@@ -449,8 +450,8 @@ function filtrar() {
             XLSX.writeFile(wb, `Pedidos_Completos_${fecha}.xlsx`);
         }
 
-        async function descargarStockTotal() {
-            const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS'];
+async function descargarStockTotal() {
+    const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS', 'FABRICAS', 'ROL MUEBLES'];
             let stockTotal = [];
             alert("⏳ Recopilando todo el almacén... Dale a Aceptar y espera unos segundos.");
             
