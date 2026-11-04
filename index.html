@@ -270,8 +270,7 @@ async function cambiarConPrompt(id, tipo, signo) {
                 
                 let bodyData = { tipo, cantidad: total };
                 if (tipo === 'ven' && total > 0) {
-                    const fechaActual = new Date().toLocaleString();
-                    bodyData.fechaVenta = fechaActual;
+                    bodyData.fechaVenta = new Date().toLocaleString();
                 }
 
                 await fetch(`${URL_API}/stock/actualizar/${id}`, {
