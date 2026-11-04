@@ -262,19 +262,50 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             }
         }
 
-        async function cambiarConPrompt(id, tipo, signo) {
+async function cambiarConPrompt(id, tipo, signo) {
             const msj = signo > 0 ? "¿CUÁNTAS UNIDADES LLEGAN?" : "¿CUÁNTAS QUITAS?";
             const num = prompt(msj);
             if (num !== null && num !== "" && !isNaN(num)) {
                 const total = parseInt(num) * signo;
-                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
+                
+                let bodyData = { tipo, cantidad: total };
+                if (tipo === 'ven' && total > 0) {
+                    const fechaActual = new Date().toLocaleString();
+                    bodyData.fechaVenta = fechaActual;
+                }
+
+                await fetch(`${URL_API}/stock/actualizar/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
                 cargarStock(seccionActual);
             }
         }
 
-        async function cambiarDirecto(id, tipo, valor) {
-            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
-            cargarStock(seccionActual);
+async function cambiarDirecto(id, tipo, valor) {
+            try {
+                // Si estamos sumando en vendidos ('ven' y valor > 0), mandamos la fecha actual
+                let bodyData = { tipo, cantidad: valor };
+                if (tipo === 'ven' && valor > 0) {
+                    const fechaActual = new Date().toLocaleString();
+                    bodyData.fechaVenta = fechaActual;
+                }
+
+                const res = await fetch(`${URL_API}/stock/actualizar/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+                
+                if (res.ok) {
+                    cargarStock(seccionActual);
+                } else {
+                    alert("Error al actualizar");
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function guardarNuevoProducto() {
