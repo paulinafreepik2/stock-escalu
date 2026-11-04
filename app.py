@@ -5,6 +5,7 @@ from bson import ObjectId
 import pandas as pd
 import io
 from datetime import datetime
+from datetime import datetime, timezone
 
 app = Flask(__name__)
 # BLINDAMOS EL CORS PARA QUE NO BLOQUEE LOS BOTONES
@@ -25,6 +26,25 @@ def get_stock(seccion):
     for p in productos:
         p['_id'] = str(p['_id'])
     return jsonify(productos)
+# REGISTRAR FECHA DE RECEPCIÓN O VENTA
+@app.route('/stock/movimiento/<id>', methods=['POST'])
+def registrar_movimiento(id):
+    try:
+        tipo = request.args.get('tipo')
+        cantidad = int(float(request.args.get('cantidad', 0)))
+
+        if tipo not in ('rec', 'ven') or cantidad == 0:
+            return jsonify({'msg': 'Movimiento no válido'}), 400
+
+        mongo.db.stock.update_one({'_id': ObjectId(id)}, {'$push': {'movimientos': {
+            'tipo': tipo,
+            'cantidad': cantidad,
+            'fecha': datetime.now(timezone.utc).isoformat()
+        }}})
+        return jsonify({'msg': 'Movimiento guardado'})
+    except Exception as e:
+        print(f"Error en movimiento: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/stock/agregar', methods=['POST', 'OPTIONS'])
 def add_product():
