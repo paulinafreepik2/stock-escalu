@@ -4,6 +4,7 @@ from flask_cors import CORS
 from bson import ObjectId
 import pandas as pd
 import io
+import os
 from datetime import datetime
 from datetime import datetime, timezone
 
@@ -12,7 +13,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configuración de MongoDB
-app.config["MONGO_URI"] = "mongodb+srv://usuario_web:FEh8oeAhmoSPFqhn@stockescalu.mikltkh.mongodb.net/ESCALU_DB?retryWrites=true&w=majority&authSource=admin"
+app.config["MONGO_URI"] = os.environ["MONGO_URI"]
 mongo = PyMongo(app)
 
 @app.route('/')
