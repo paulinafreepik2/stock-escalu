@@ -25,7 +25,7 @@
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans text-sm">
     <div class="max-w-[1400px] mx-auto p-4">
-        
+
         <div id="pantalla-login" class="mt-20 max-w-md mx-auto bg-card p-8 rounded-3xl text-center border border-slate-700 shadow-2xl">
             <h1 class="text-4xl font-black mb-6 italic tracking-tighter text-white">IMMINENT</h1>
             <input id="input-pass" type="password" placeholder="CLAVE" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 text-center text-white text-xl font-bold mb-4 outline-none focus:border-blue-500">
@@ -46,7 +46,7 @@
                 <button onclick="cargarStock('ROL MUEBLES')" class="solo-admin bg-indigo-700 p-8 rounded-3xl font-bold text-xl shadow-lg">🏷️ ROL MUEBLES</button>
                 <button onclick="verPedidos()" class="solo-admin bg-emerald-600 p-8 rounded-3xl font-bold text-xl border-2 border-emerald-400 shadow-lg">📝 PEDIDOS</button>
             </div>
-            
+
             <div class="mt-8 flex justify-center solo-admin">
                 <button onclick="descargarStockTotal()" class="bg-blue-600 px-8 py-4 rounded-2xl font-black text-lg shadow-lg border-2 border-blue-400 uppercase active:scale-95 transition">
                     💾 DESCARGAR TODO EL STOCK (Copia de Seguridad)
@@ -55,7 +55,7 @@
         </div>
 
         <div id="vista-stock" class="hidden">
-            
+
             <div class="solo-admin bg-card p-5 rounded-3xl border border-slate-700 mb-6 shadow-xl">
                 <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs">➕ NUEVO PRODUCTO EN <span id="nombre-linea-form"></span></h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -71,7 +71,7 @@
                     <input id="new-stock" type="number" placeholder="CANT." class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-white outline-none">
                     <button onclick="guardarNuevoProducto()" class="bg-emerald-600 p-3 rounded-xl font-bold uppercase shadow-lg">GUARDAR</button>
                 </div>
-                
+
                 <div class="mt-4 pt-4 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p class="text-xs text-slate-400 font-bold uppercase">📂 Subir varios de golpe desde Excel:</p>
                     <div class="flex gap-2 w-full md:w-auto">
@@ -80,13 +80,13 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="flex justify-between items-center mb-6 px-2">
                 <div class="flex items-center gap-4">
                     <h2 id="titulo-linea" class="text-3xl md:text-4xl font-black text-yellow-500 italic uppercase"></h2>
                     <button onclick="borrarSeccionCompleta()" class="solo-admin text-3xl active:scale-90 transition hover:bg-red-900/50 p-2 rounded-xl" title="BORRAR TODO EL CATÁLOGO">🗑️💥</button>
                 </div>
-                
+
                 <div class="flex gap-4 items-center">
                     <input id="buscador" onkeyup="filtrar()" placeholder="🔎 Buscar..." class="p-3 w-40 md:w-80 rounded-xl bg-card border border-slate-700 text-white outline-none">
                     <button id="btn-volver-stock" onclick="volverAlMenu()" class="bg-slate-700 px-6 py-3 rounded-xl font-bold uppercase text-xs">VOLVER</button>
@@ -100,12 +100,15 @@
                             <th class="p-5">REF</th>
                             <th class="p-5">PRODUCTO</th>
                             <th class="p-5">COLOR</th>
-                            
+
                             <th class="p-5 text-center solo-admin">RECEPCIONADAS (POP)</th>
+                            <th class="p-5 text-center solo-admin">FECHA RECEPCIÓN</th>
                             <th class="p-5 text-center solo-admin">VENDIDAS (+/-)</th>
-                            
+                            <th class="p-5 text-center solo-admin">FECHA VENTA</th>
+
                             <th class="p-5 text-center">STOCK</th>
-                            
+
+                            <th class="p-5 text-center solo-admin">FECHAS</th>
                             <th class="p-5 text-center col-pedido solo-admin">PEDIR</th>
                             <th class="p-5 text-center solo-admin">BORRAR</th>
                         </tr>
@@ -137,7 +140,7 @@
 
     <script>
         const URL_API = "https://stock-escalu-app.onrender.com";
-        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = [];
+        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = []; let stockCache = [];
 
         function getClaseColor(color) {
             if (!color) return 'badge-default';
@@ -154,17 +157,17 @@
         // --- SISTEMA DE LOGIN Y RESTRICCIONES CERRADO CON CANDADO ---
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
-            
-            if (pass === '12345CUCA') { 
+
+            if (pass === '12345CUCA') {
                 // 👑 ADMIN: Entra a todo
-                esAdmin = true; 
-                document.body.classList.remove('modo-cliente'); 
+                esAdmin = true;
+                document.body.classList.remove('modo-cliente');
                 document.getElementById('btn-volver-stock').classList.remove('hidden');
-                entrar("ADMINISTRADOR"); 
-            } 
+                entrar("ADMINISTRADOR");
+            }
             else if (pass === 'SOFAS') {
                 // 🛋️ SOLO SOFÁS: Entra directo y no puede salir
-                esAdmin = false; 
+                esAdmin = false;
                 document.body.classList.add('modo-cliente');
                 document.getElementById('pantalla-login').classList.add('hidden');
                 document.getElementById('btn-volver-stock').classList.add('hidden');
@@ -172,20 +175,20 @@
             }
 else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                 // 🏭 ZONA FÁBRICA: Solo para el chico de fábrica o el admin
-                esAdmin = true; 
-                document.body.classList.remove('modo-cliente'); 
+                esAdmin = true;
+                document.body.classList.remove('modo-cliente');
                 document.getElementById('pantalla-login').classList.add('hidden');
                 document.getElementById('btn-volver-stock').classList.add('hidden'); // Lo encerramos en su sección
                 cargarStock('FABRICAS');
             }
-            else if (pass === 'INVITADO') { 
+            else if (pass === 'INVITADO') {
                 // 👤 INVITADO: Solo entra si pone la palabra "INVITADO"
-                esAdmin = false; 
-                document.body.classList.add('modo-cliente'); 
+                esAdmin = false;
+                document.body.classList.add('modo-cliente');
                 document.getElementById('btn-volver-stock').classList.remove('hidden');
-                entrar("INVITADO"); 
+                entrar("INVITADO");
             }
-            else { 
+            else {
                 // ❌ CLAVE INCORRECTA O EN BLANCO: Bloqueo
                 alert("❌ CONTRASEÑA INCORRECTA. Acceso denegado.");
                 document.getElementById('input-pass').value = ""; // Borra lo que haya escrito mal
@@ -198,29 +201,60 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             document.getElementById('menu-secciones').classList.remove('hidden');
         }
 
+        // --- FECHAS DE RECEPCIÓN Y VENTA ---
+        function formatearFecha(iso) {
+            const d = new Date(iso);
+            return isNaN(d) ? "" : d.toLocaleDateString('es-ES');
+        }
+
+        function formatearHora(iso) {
+            const d = new Date(iso);
+            return isNaN(d) ? "" : d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // La última vez que entraron o se vendieron unidades (las correcciones con "-" no cuentan)
+        function ultimaFecha(m, tipo) {
+            const lista = (m.movimientos || []).filter(x => x.tipo === tipo && x.cantidad > 0);
+            return lista.length ? formatearFecha(lista[lista.length - 1].fecha) : "—";
+        }
+
+        // Si esto falla el stock sigue funcionando, solo se pierde la fecha de ese movimiento
+        async function registrarMovimiento(id, tipo, cantidad) {
+            if (!id || !cantidad) return;
+            try {
+                await fetch(`${URL_API}/stock/movimiento/${id}?tipo=${tipo}&cantidad=${cantidad}`, { method: 'POST' });
+            } catch (e) { console.error("No se pudo guardar la fecha del movimiento"); }
+        }
+
+        async function actualizarStock(id, tipo, cantidad) {
+            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${cantidad}`, { method: 'PUT' });
+            await registrarMovimiento(id, tipo, cantidad);
+        }
+
         // --- TABLA DE STOCK ---
         async function cargarStock(seccion) {
-            seccionActual = seccion; 
+            seccionActual = seccion;
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-stock').classList.remove('hidden');
             document.getElementById('titulo-linea').innerText = seccion;
             document.getElementById('nombre-linea-form').innerText = seccion;
-            
+
             const res = await fetch(`${URL_API}/stock/${seccion}`);
             const datos = await res.json();
+            stockCache = datos;
             const tabla = document.getElementById('cuerpo-tabla');
             tabla.innerHTML = '';
-            
+
             datos.forEach(m => {
                 const actual = (m.recepcionadas || 0) - (m.vendido || 0);
                 const claseCol = getClaseColor(m.color);
-                
+
                 tabla.innerHTML += `
                 <tr class="hover:bg-slate-800/20 border-slate-800 font-bold">
                     <td class="p-5 text-blue-400 font-mono text-lg">${m.ref}</td>
                     <td class="p-5 uppercase text-xs">${m.descripcion}</td>
                     <td class="p-5">${(m.color && m.color !== "SIN COLOR") ? `<span class="tag ${claseCol}">${m.color}</span>` : ""}</td>
-                    
+
                     <td class="p-5 solo-admin">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarConPrompt('${m._id}', 'rec', -1)" class="solo-admin btn-accion bg-red-900 border border-red-700">-</button>
@@ -228,7 +262,9 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                             <button onclick="cambiarConPrompt('${m._id}', 'rec', 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500">+</button>
                         </div>
                     </td>
-                    
+
+                    <td class="p-5 text-center text-xs text-emerald-400 whitespace-nowrap solo-admin">${ultimaFecha(m, 'rec')}</td>
+
                     <td class="p-5 solo-admin">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-accion bg-red-900 border border-red-700">-</button>
@@ -236,13 +272,19 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                             <button onclick="cambiarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500">+</button>
                         </div>
                     </td>
-                    
+
+                    <td class="p-5 text-center text-xs text-amber-400 whitespace-nowrap solo-admin">${ultimaFecha(m, 'ven')}</td>
+
                     <td class="p-5 text-center text-3xl font-black text-white">${actual}</td>
-                    
+
+                    <td class="p-5 text-center solo-admin">
+                        <button onclick="descargarFechasProducto('${m._id}')" class="bg-green-700 px-4 py-2 rounded-lg text-[9px] font-black shadow-lg active:scale-95 transition whitespace-nowrap">📥 EXCEL</button>
+                    </td>
+
                     <td class="p-5 text-center col-pedido solo-admin">
                         <button onclick="anotarPedido('${m._id}', '${m.ref}', '${m.descripcion}', '${m.color}')" class="bg-emerald-600 px-4 py-2 rounded-lg text-[9px] font-black shadow-lg active:scale-95 transition">🛒 PEDIR</button>
                     </td>
-                    
+
                     <td class="p-5 text-center solo-admin">
                         <button onclick="eliminarProducto('${m._id}', '${m.ref}')" class="text-2xl active:scale-90 transition">🗑️</button>
                     </td>
@@ -254,7 +296,7 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
         async function eliminarProducto(id, ref) {
             if (confirm(`⚠️ Vas a borrar completamente el producto ${ref} del stock. ¿Estás seguro?`)) {
                 await fetch(`${URL_API}/stock/eliminar/${id}`, { method: 'DELETE' });
-                cargarStock(seccionActual); 
+                cargarStock(seccionActual);
             }
         }
 
@@ -263,13 +305,13 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             const num = prompt(msj);
             if (num !== null && num !== "" && !isNaN(num)) {
                 const total = parseInt(num) * signo;
-                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
+                await actualizarStock(id, tipo, total);
                 cargarStock(seccionActual);
             }
         }
 
         async function cambiarDirecto(id, tipo, valor) {
-            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
+            await actualizarStock(id, tipo, valor);
             cargarStock(seccionActual);
         }
 
@@ -278,17 +320,19 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             const desc = document.getElementById('new-desc').value.trim().toUpperCase();
             const col = document.getElementById('new-color').value;
             const stock = document.getElementById('new-stock').value || 0;
-            
+
             if(!ref || !desc) return alert("FALTA REF O MUEBLE");
-            
-            await fetch(`${URL_API}/stock/agregar`, {
+
+            const res = await fetch(`${URL_API}/stock/agregar`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ seccion: seccionActual, ref: ref, descripcion: desc, color: col, recepcionadas: parseInt(stock), vendido: 0 })
             });
-            
-            alert("GUARDADO CORRECTAMENTE"); 
+            const nuevo = await res.json().catch(() => ({}));
+            await registrarMovimiento(nuevo.id, 'rec', parseInt(stock));
+
+            alert("GUARDADO CORRECTAMENTE");
             cargarStock(seccionActual);
-            document.getElementById('new-ref').value = ''; 
+            document.getElementById('new-ref').value = '';
             document.getElementById('new-desc').value = '';
             document.getElementById('new-stock').value = '';
         }
@@ -297,7 +341,7 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
 async function anotarPedido(id, ref, desc, color) {
             const cliente = prompt(`¿NOMBRE DEL CLIENTE para pedir el ${ref}?`);
             if (!cliente) return;
-            
+
             // Apuntamos el pedido en la lista
             await fetch(`${URL_API}/pedidos/crear`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -314,18 +358,18 @@ async function anotarPedido(id, ref, desc, color) {
             document.getElementById('menu-secciones').classList.add('hidden');
             document.getElementById('vista-pedidos').classList.remove('hidden');
             document.getElementById('btn-historial').innerText = "📜 VER HISTORIAL";
-            
+
             document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5">MUEBLE</th><th class="p-5 text-center">CANT.</th><th class="p-5 text-center">OK</th></tr>`;
-            
+
             const res = await fetch(`${URL_API}/pedidos`);
             pedidosCache = await res.json();
             const tabla = document.getElementById('cuerpo-pedidos');
             tabla.innerHTML = '';
-            
+
             pedidosCache.forEach(p => {
                 const cant = p.cantidad || 1;
                 const idStock = p.id_stock || ''; // Pillamos el ID secreto del mueble
-                
+
                 tabla.innerHTML += `
                 <tr class="border-slate-800">
                     <td class="p-5 text-emerald-400 font-bold">${p.cliente}</td>
@@ -346,23 +390,23 @@ async function anotarPedido(id, ref, desc, color) {
 
         async function cambiarCantidadPedido(idPedido, idStock, cantidadActual, cambio) {
             const nuevaCanti = cantidadActual + cambio;
-            
+
             if (nuevaCanti < 1) {
                 if(confirm("¿La cantidad es 0, quieres dar el pedido por entregado/anulado?")) terminar(idPedido);
                 return;
             }
-            
+
             // 1. Actualiza el numerito en el pedido
             await fetch(`${URL_API}/pedidos/actualizar/${idPedido}?cantidad=${nuevaCanti}`, { method: 'PUT' });
-            
+
             // 2. ¡LA MAGIA! Sincroniza con el stock maestro (suma o resta a "vendidas")
             if (idStock) {
-                await fetch(`${URL_API}/stock/actualizar/${idStock}?tipo=ven&cantidad=${cambio}`, { method: 'PUT' });
+                await actualizarStock(idStock, 'ven', cambio);
             } else {
                 // Aviso por si es un pedido súper antiguo que hiciste antes de poner esta mejora
                 console.log("Pedido antiguo sin ID de stock enlazado.");
             }
-            
+
             verPedidos(); // Refresca la tabla al instante
         }
 
@@ -370,16 +414,16 @@ async function anotarPedido(id, ref, desc, color) {
             viendoHistorial = !viendoHistorial;
             if (viendoHistorial) {
                 document.getElementById('btn-historial').innerText = "📝 VER ACTIVOS";
-                
+
                 // Añadimos la columna BORRAR (Solo para Administrador)
                 document.getElementById('cabecera-pedidos').innerHTML = `<tr><th class="p-5">CLIENTE</th><th class="p-5 text-center">EXCEL</th><th class="p-5 text-center solo-admin">BORRAR</th></tr>`;
-                
+
                 const res = await fetch(`${URL_API}/pedidos/historial`);
                 pedidosCache = await res.json();
                 const tabla = document.getElementById('cuerpo-pedidos');
                 tabla.innerHTML = '';
                 const clientes = [...new Set(pedidosCache.map(p => p.cliente.toUpperCase()))];
-                
+
                 clientes.forEach(c => {
                     tabla.innerHTML += `
                     <tr class="border-slate-800">
@@ -398,38 +442,59 @@ async function anotarPedido(id, ref, desc, color) {
         // LA FUNCIÓN NUEVA QUE DESTRUYE EL HISTORIAL DE ESE CLIENTE
         async function eliminarHistorialCliente(cliente) {
             if (confirm(`⚠️ ¿Seguro que quieres borrar TODO el historial del cliente ${cliente}? Esto no se puede deshacer.`)) {
-                
+
                 // Buscamos todos los muebles que pidió ese cliente en el historial
                 const pedidosCliente = pedidosCache.filter(p => p.cliente.toUpperCase() === cliente);
-                
+
                 // Los borramos uno a uno de la base de datos
                 for (let p of pedidosCliente) {
                     await fetch(`${URL_API}/pedidos/eliminar/${p._id}`, { method: 'DELETE' });
                 }
-                
+
                 alert(`✅ Historial de ${cliente} borrado para siempre.`);
-                
+
                 // Recargamos el historial para que veas cómo desaparece
-                viendoHistorial = false; 
+                viendoHistorial = false;
                 toggleHistorial();
             }
         }
 
         async function terminar(id) { if (confirm("¿ENTREGADO?")) { await fetch(`${URL_API}/pedidos/finalizar/${id}`, { method: 'PUT' }); verPedidos(); } }
-        
+
         // --- UTILIDADES ---
         function volverAlMenu() { document.getElementById('vista-stock').classList.add('hidden'); document.getElementById('vista-pedidos').classList.add('hidden'); document.getElementById('menu-secciones').classList.remove('hidden'); }
-function filtrar() { 
-            const terminos = document.getElementById('buscador').value.toUpperCase().trim().split(/\s+/); 
-            const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr'); 
-            for (let i = 0; i < filas.length; i++) { 
-                const textoFila = filas[i].innerText.toUpperCase(); 
-                const coincide = terminos.every(termino => textoFila.includes(termino)); 
-                filas[i].style.display = coincide ? "" : "none"; 
-            } 
+function filtrar() {
+            const terminos = document.getElementById('buscador').value.toUpperCase().trim().split(/\s+/);
+            const filas = document.getElementById('cuerpo-tabla').getElementsByTagName('tr');
+            for (let i = 0; i < filas.length; i++) {
+                const textoFila = filas[i].innerText.toUpperCase();
+                const coincide = terminos.every(termino => textoFila.includes(termino));
+                filas[i].style.display = coincide ? "" : "none";
+            }
         }
 
         // --- SISTEMA DE EXCEL ---
+        function descargarFechasProducto(id) {
+            const m = stockCache.find(x => x._id === id);
+            if (!m) return;
+            const movimientos = m.movimientos || [];
+            if (movimientos.length === 0) return alert(`⚠️ El producto ${m.ref} todavía no tiene fechas guardadas.`);
+
+            const data = movimientos.map(x => ({
+                REF: m.ref,
+                PRODUCTO: m.descripcion,
+                COLOR: m.color || "",
+                MOVIMIENTO: x.tipo === 'rec' ? "RECEPCIÓN" : "VENTA",
+                UNIDADES: x.cantidad,
+                FECHA: formatearFecha(x.fecha),
+                HORA: formatearHora(x.fecha)
+            }));
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "FECHAS");
+            XLSX.writeFile(wb, `Fechas_${String(m.ref).replace(/[\\/:*?"<>|]/g, '-')}.xlsx`);
+        }
+
         function descargarExcel(c) {
             const data = pedidosCache.filter(p => p.cliente.toUpperCase() === c).map(p => ({ FECHA: p.fecha, CLIENTE: p.cliente, REF: p.ref, DESC: p.descripcion, COLOR: p.color, UNIDADES: p.cantidad || 1 }));
             const ws = XLSX.utils.json_to_sheet(data);
@@ -453,7 +518,7 @@ async function descargarStockTotal() {
     const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS', 'FABRICAS', 'ROL MUEBLES'];
             let stockTotal = [];
             alert("⏳ Recopilando todo el almacén... Dale a Aceptar y espera unos segundos.");
-            
+
             for (let sec of secciones) {
                 try {
                     const res = await fetch(`${URL_API}/stock/${sec}`);
@@ -464,7 +529,7 @@ async function descargarStockTotal() {
                 } catch (e) { console.error("Error cargando " + sec); }
             }
             if (stockTotal.length === 0) return alert("El almacén está vacío o hay un error de conexión.");
-            
+
             const ws = XLSX.utils.json_to_sheet(stockTotal);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "INVENTARIO TOTAL");
@@ -476,46 +541,49 @@ async function descargarStockTotal() {
         async function importarExcel() {
             const fileInput = document.getElementById('file-import');
             if (!fileInput.files.length) return alert("⚠️ Selecciona un archivo Excel primero.");
-            
+
             const file = fileInput.files[0];
             const reader = new FileReader();
-            
+
             reader.onload = async function(e) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, {type: 'array'});
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const filas = XLSX.utils.sheet_to_json(firstSheet);
-                
+
                 if (filas.length === 0) return alert("El Excel está vacío.");
                 if (!confirm(`Vas a subir ${filas.length} productos a la base de datos. ¿Continuar?`)) return;
-                
+
                 alert("⏳ Subiendo productos... No toques nada hasta que salga el aviso de completado.");
-                
+
                 for (let fila of filas) {
                     const ref = fila.ref || fila.REF || "";
                     const desc = fila.descripcion || fila.descripcion || fila.DESCRIPCION || "";
                     const col = fila.color || fila.COLOR || "";
                     const rec = parseInt(fila.recepcionadas || 0);
                     const ven = parseInt(fila.vendido || 0);
-                    const sec = fila.seccion || fila.SECCION || seccionActual; 
-                    
+                    const sec = fila.seccion || fila.SECCION || seccionActual;
+
                     if (!ref || !desc) continue;
-                    
-                    await fetch(`${URL_API}/stock/agregar`, {
+
+                    const res = await fetch(`${URL_API}/stock/agregar`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ 
-                            seccion: String(sec).toUpperCase(), 
-                            ref: String(ref).toUpperCase(), 
-                            descripcion: String(desc).toUpperCase(), 
-                            color: String(col).toUpperCase(), 
-                            recepcionadas: isNaN(rec) ? 0 : rec, 
-                            vendido: isNaN(ven) ? 0 : ven 
+                        body: JSON.stringify({
+                            seccion: String(sec).toUpperCase(),
+                            ref: String(ref).toUpperCase(),
+                            descripcion: String(desc).toUpperCase(),
+                            color: String(col).toUpperCase(),
+                            recepcionadas: isNaN(rec) ? 0 : rec,
+                            vendido: isNaN(ven) ? 0 : ven
                         })
                     });
+                    const nuevo = await res.json().catch(() => ({}));
+                    await registrarMovimiento(nuevo.id, 'rec', isNaN(rec) ? 0 : rec);
+                    await registrarMovimiento(nuevo.id, 'ven', isNaN(ven) ? 0 : ven);
                 }
                 alert("✅ ¡SUBIDA COMPLETADA CON ÉXITO!");
-                fileInput.value = ""; 
-                cargarStock(seccionActual); 
+                fileInput.value = "";
+                cargarStock(seccionActual);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -523,19 +591,19 @@ async function descargarStockTotal() {
         async function borrarSeccionCompleta() {
             // El seguro de vida: te obliga a escribir BORRAR en mayúsculas
             const palabra = prompt(`⚠️ ¡PELIGRO RADIACTIVO! ⚠️\n\nVas a borrar TODOS los productos de la sección ${seccionActual} de golpe.\n\nPara confirmar, escribe la palabra BORRAR en mayúsculas:`);
-            
+
             if (palabra === 'BORRAR') {
                 try {
                     const res = await fetch(`${URL_API}/stock/eliminar_seccion/${seccionActual}`, { method: 'DELETE' });
-                    
+
                     if (!res.ok) {
                         alert("❌ EL SERVIDOR LO HA BLOQUEADO. Revisa si se guardó bien el app.py en GitHub.");
                         return;
                     }
-                    
+
                     alert(`💥 ¡PUM! Catálogo entero de ${seccionActual} eliminado.`);
                     cargarStock(seccionActual); // Recarga la tabla, que ahora estará vacía
-                    
+
                 } catch (err) {
                     alert("❌ Error de conexión: " + err.message);
                 }
