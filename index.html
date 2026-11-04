@@ -233,10 +233,7 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                     <td class="p-5 solo-admin">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="cambiarDirecto('${m._id}', 'ven', -1)" class="solo-admin btn-accion bg-red-900 border border-red-700">-</button>
-                           <div class="flex items-center justify-center gap-2">
-    <span class="text-xl font-black w-10 text-center">${m.vendido || 0}</span>
-    <button onclick='descargarHistorialProducto("${m.ref}", "${m.descripcion}", ${JSON.stringify(m.historial || [])})' class="solo-admin bg-slate-700 hover:bg-slate-600 p-1.5 rounded-lg text-xs" title="Descargar Historial de Ventas">📥</button>
-</div>
+                            <span class="text-xl font-black w-10 text-center">${m.vendido || 0}</span>
                             <button onclick="cambiarDirecto('${m._id}', 'ven', 1)" class="solo-admin btn-accion bg-emerald-700 border border-emerald-500">+</button>
                         </div>
                     </td>
@@ -262,65 +259,19 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             }
         }
 
-async function cambiarConPrompt(id, tipo, signo) {
+        async function cambiarConPrompt(id, tipo, signo) {
             const msj = signo > 0 ? "¿CUÁNTAS UNIDADES LLEGAN?" : "¿CUÁNTAS QUITAS?";
             const num = prompt(msj);
             if (num !== null && num !== "" && !isNaN(num)) {
                 const total = parseInt(num) * signo;
-                
-                let bodyData = { tipo, cantidad: total };
-                if (tipo === 'ven' && total > 0) {
-                    bodyData.fechaVenta = new Date().toLocaleString();
-                }
-
-                await fetch(`${URL_API}/stock/actualizar/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyData)
-                });
+                await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${total}`, { method: 'PUT' });
                 cargarStock(seccionActual);
             }
         }
 
-async function cambiarDirecto(id, tipo, valor) {
-            try {
-                let bodyData = { tipo, cantidad: valor };
-                
-                // Si sumamos en vendidos ('ven' y valor > 0), guardamos la fecha en el historial
-                if (tipo === 'ven' && valor > 0) {
-                    bodyData.fechaVenta = new Date().toLocaleString();
-                }
-
-                const res = await fetch(`${URL_API}/stock/actualizar/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyData)
-                });
-                
-                if (res.ok) {
-                    cargarStock(seccionActual);
-                } else {
-                    alert("Error al actualizar");
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-                const res = await fetch(`${URL_API}/stock/actualizar/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyData)
-                });
-                
-                if (res.ok) {
-                    cargarStock(seccionActual);
-                } else {
-                    alert("Error al actualizar");
-                }
-            } catch (err) {
-                console.error(err);
-            }
+        async function cambiarDirecto(id, tipo, valor) {
+            await fetch(`${URL_API}/stock/actualizar/${id}?tipo=${tipo}&cantidad=${valor}`, { method: 'PUT' });
+            cargarStock(seccionActual);
         }
 
         async function guardarNuevoProducto() {
@@ -592,31 +543,6 @@ async function descargarStockTotal() {
             } else if (palabra !== null) {
                 alert("Cancelado. No has escrito la palabra correcta. ¡Tus muebles están a salvo!");
             }
-        }
-        // --- DESCARGAR HISTORIAL DE VENTAS DE UN PRODUCTO ---
-        function descargarHistorialProducto(ref, descripcion, historialVentas) {
-            // Comprobamos si hay historial
-            if (!historialVentas || historialVentas.length === 0) {
-                alert("No hay registros de ventas anteriores para este producto.");
-                return;
-            }
-
-            // Creamos el contenido en formato CSV (compatible con Excel)
-            let csvContent = "\uFEFFReferencia;Descripción;Fecha y Hora de Venta\n";
-            
-            historialVentas.forEach(fecha => {
-                csvContent += `"${ref}";"${descripcion}";"${fecha}"\n`;
-            });
-
-            // Creamos un archivo virtual y lo descargamos automáticamente
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `Historial_Ventas_${ref}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
     </script>
 </body>
