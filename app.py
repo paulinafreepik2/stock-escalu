@@ -4,6 +4,7 @@ from flask_cors import CORS
 from bson import ObjectId
 import pandas as pd
 import io
+import math
 import os
 from datetime import datetime
 from datetime import datetime, timezone
@@ -47,27 +48,43 @@ def registrar_movimiento(id):
         print(f"Error en movimiento: {e}")
         return jsonify({"error": str(e)}), 500
 
+# PUNTOS DE CADA MUEBLE
+@app.route('/stock/puntos/<id>', methods=['PUT', 'OPTIONS'])
+def poner_puntos(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"msg": "OK"}), 200
+    try:
+        puntos = float(request.args.get('puntos', ''))
+    except ValueError:
+        return jsonify({"error": "Puntos no válidos"}), 400
+    if not math.isfinite(puntos) or puntos < 0:
+        return jsonify({"error": "Puntos no válidos"}), 400
+    if puntos.is_integer():
+        puntos = int(puntos)
+    mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$set": {"puntos": puntos}})
+    return jsonify({"msg": "OK"})
+
 @app.route('/stock/agregar', methods=['POST', 'OPTIONS'])
 def add_product():
     if request.method == 'OPTIONS':
         return jsonify({"msg": "OK"}), 200
     data = request.json
-    mongo.db.stock.insert_one(data)
-    return jsonify({"msg": "OK"})
+    nuevo_id = mongo.db.stock.insert_one(data).inserted_id
+    return jsonify({"msg": "OK", "id": str(nuevo_id)})
 
 @app.route('/stock/actualizar/<id>', methods=['PUT', 'OPTIONS'])
 def actualizar_stock(id):
     if request.method == 'OPTIONS':
         return jsonify({"msg": "OK"}), 200
-        
+
     tipo = request.args.get('tipo')
     cantidad = int(request.args.get('cantidad', 0))
-    
+
     if tipo == 'rec':
         mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$inc": {"recepcionadas": cantidad}})
     elif tipo == 'ven':
         mongo.db.stock.update_one({"_id": ObjectId(id)}, {"$inc": {"vendido": cantidad}})
-        
+
     return jsonify({"msg": "OK"})
 
 @app.route('/stock/eliminar/<id>', methods=['DELETE', 'OPTIONS'])
