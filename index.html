@@ -114,6 +114,7 @@
                             <th class="p-5 text-center solo-admin">FECHAS</th>
                             <th class="p-5 text-center col-pedido solo-admin">PEDIR</th>
                             <th class="p-5 text-center solo-admin">BORRAR</th>
+                            <th class="p-5 text-center">PUNTOS</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpo-tabla" class="divide-y divide-slate-800/50"></tbody>
@@ -143,7 +144,7 @@
 
     <script>
         const URL_API = "https://stock-escalu-app.onrender.com";
-        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = []; let stockCache = [];
+        let seccionActual = ""; let esAdmin = false; let viendoHistorial = false; let pedidosCache = []; let stockCache = []; let esJefe = false;
 
         function getClaseColor(color) {
             if (!color) return 'badge-default';
@@ -160,6 +161,8 @@
         // --- SISTEMA DE LOGIN Y RESTRICCIONES CERRADO CON CANDADO ---
         function verificar() {
             const pass = document.getElementById('input-pass').value.trim().toUpperCase();
+
+            esJefe = (pass === '12345CUCA');
 
             if (pass === '12345CUCA') {
                 // 👑 ADMIN: Entra a todo
@@ -234,6 +237,25 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
             await registrarMovimiento(id, tipo, cantidad);
         }
 
+        // --- PUNTOS: SOLO EL ADMINISTRADOR VE EL BOTÓN PARA CAMBIARLOS ---
+        function celdaPuntos(m) {
+            const puntos = (m.puntos ?? "") === "" ? "—" : m.puntos;
+            if (!esJefe) return `<span class="text-xl font-black text-purple-300">${puntos}</span>`;
+            return `<button onclick="cambiarPuntos('${m._id}')" class="bg-purple-700 border border-purple-500 px-4 py-2 rounded-lg text-lg font-black shadow-lg active:scale-95 transition whitespace-nowrap" title="Cambiar puntos">⭐ ${puntos}</button>`;
+        }
+
+        async function cambiarPuntos(id) {
+            const m = stockCache.find(x => x._id === id);
+            if (!m) return;
+            const valor = prompt(`¿CUÁNTOS PUNTOS TIENE ${m.ref}?`, m.puntos ?? "");
+            if (valor === null) return;
+            const puntos = Number(valor.trim().replace(',', '.'));
+            if (valor.trim() === "" || isNaN(puntos) || puntos < 0) return alert("⚠️ Escribe un número, por ejemplo 10.");
+            const res = await fetch(`${URL_API}/stock/puntos/${id}?puntos=${puntos}`, { method: 'PUT' });
+            if (!res.ok) return alert("❌ No se han podido guardar los puntos.");
+            cargarStock(seccionActual);
+        }
+
         // --- TABLA DE STOCK ---
         async function cargarStock(seccion) {
             seccionActual = seccion;
@@ -292,6 +314,8 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                     <td class="p-5 text-center solo-admin">
                         <button onclick="eliminarProducto('${m._id}', '${m.ref}')" class="text-2xl active:scale-90 transition">🗑️</button>
                     </td>
+
+                    <td class="p-5 text-center">${celdaPuntos(m)}</td>
                 </tr>`;
             });
             filtrar();
@@ -528,7 +552,7 @@ const secciones = ['DAKOTA', 'DIURNO', 'NOCTURNO', 'SOFAS', 'ELIAS', 'FABRICAS',
                     const res = await fetch(`${URL_API}/stock/${sec}`);
                     const datos = await res.json();
                     datos.forEach(d => {
-                        stockTotal.push({ SECCION: d.seccion, REF: d.ref, PRODUCTO: d.descripcion, COLOR: d.color, RECEPCIONADAS: d.recepcionadas || 0, VENDIDAS: d.vendido || 0, STOCK_REAL: (d.recepcionadas || 0) - (d.vendido || 0) });
+                        stockTotal.push({ SECCION: d.seccion, REF: d.ref, PRODUCTO: d.descripcion, COLOR: d.color, RECEPCIONADAS: d.recepcionadas || 0, VENDIDAS: d.vendido || 0, STOCK_REAL: (d.recepcionadas || 0) - (d.vendido || 0), PUNTOS: d.puntos ?? "" });
                     });
                 } catch (e) { console.error("Error cargando " + sec); }
             }
