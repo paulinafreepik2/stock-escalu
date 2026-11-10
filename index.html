@@ -114,7 +114,6 @@
                             <th class="p-5 text-center solo-admin">FECHAS</th>
                             <th class="p-5 text-center col-pedido solo-admin">PEDIR</th>
                             <th class="p-5 text-center solo-admin">BORRAR</th>
-                            <th class="p-5 solo-admin">PUNTOS</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpo-tabla" class="divide-y divide-slate-800/50"></tbody>
@@ -268,9 +267,7 @@ else if (pass === 'FABRICAS' || pass === 'FABRICA') {
                     </td>
 
                     <td class="p-5 text-center text-xs text-emerald-400 whitespace-nowrap solo-admin">${ultimaFecha(m, 'rec')}</td>
-                    <td class="p-5 text-center solo-admin">
-    <input type="number" value="${m.puntos || 0}" onchange="cambiarDirecto('${m._id}', 'puntos', this.value)" class="w-16 bg-slate-900 border border-slate-700 text-white text-center font-bold p-1 rounded-lg">
-</td>
+                    
 
                     <td class="p-5 solo-admin">
                         <div class="flex items-center justify-center gap-2">
